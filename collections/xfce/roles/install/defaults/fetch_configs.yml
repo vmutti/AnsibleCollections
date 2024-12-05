@@ -1,0 +1,18 @@
+xfce_user_config_paths:
+  - .gtkrc-2.0
+  - {path: ".config/", recurse: false}
+  - .config/dconf
+  - .config/htop
+  - .config/konsolerc
+  - .config/pulse
+  - .config/gtk-2.0
+  - .config/gtk-3.0
+  - .config/user-dirs.dirs
+  - .config/user-dirs.locale
+  - .config/Thunar
+  - .config/xfce4/
+  - {path: ".local/share/", recurse: false}
+  - .local/share/konsole/
+xfce_system_config_paths:
+  - /usr/share/icons
+  - /usr/share/themes/

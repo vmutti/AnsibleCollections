@@ -1,0 +1,3 @@
+controller_zsh_config_dir: "{{ controller_tools_config_dir }}/zsh"
+zsh_usernames: 
+  - "{{main_username}}"

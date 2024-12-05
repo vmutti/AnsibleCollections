@@ -1,0 +1,39 @@
+- name: "Install Virtualbox guest additions if necessary ({{host_install_virtualbox_guest}})"
+  when: "'host_install_virtualbox_guest' in group_names"
+  block:
+    - name: "Installing dependencies for guest additions"
+      become: true
+      apt:
+        update_cache: yes
+        pkg:
+          - dkms 
+          - build-essential
+          - linux-headers-{{ansible_kernel}}
+
+    - name: Mount Guest Additions read-only
+      ansible.posix.mount:
+        path: /mnt/VBoxGuestAdditions
+        src: "{{ansible_env.HOME}}/VBoxGuestAdditions.iso"
+        fstype: iso9660
+        opts: loop
+        state: ephemeral
+      become: true
+      ignore_errors: true
+
+    - name: Run Guest Additions Installer
+      command:
+        argv:
+        - /mnt/VBoxGuestAdditions/VBoxLinuxAdditions.run
+        - --nox11
+      become: true
+      ignore_errors: true
+
+    # - name: Run Guest Additions Installer
+    #   command:
+    #     argv:
+    #     - /bin/bash
+    #     - -c
+    #     - /opt/VBoxGuestAdditions-*/init/vboxadd setup
+    #   become: true
+    #   ignore_errors: true
+      

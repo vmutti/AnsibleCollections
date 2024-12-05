@@ -1,0 +1,33 @@
+- name: "Install Autochrome if necessary ({{host_install_autochrome}})"
+  when: "'host_install_autochrome' in group_names"
+  block:
+  - name: "Install git, ruby"
+    become: true
+    apt:
+      update_cache: yes
+      pkg:
+        - ruby
+        - git
+  - name: Create temporary directory for Autochrome
+    tempfile:
+      state: directory
+    register: autochrome_tmp_path
+  - name: Clone Autochrome
+    git:
+      repo: https://github.com/nccgroup/autochrome.git
+      dest: "{{autochrome_tmp_path.path}}"
+  - name: "Set permissions on tmp path {{autochrome_tmp_path.path}}"
+    file:
+      path: "{{autochrome_tmp_path.path}}"
+      mode: "0775"
+      recurse: true
+      state: directory
+  - name: "Install Autochrome for {{ autochrome_username }}"
+    become: true
+    command:
+      cmd: "sudo -u {{autochrome_username}} ruby ./autochrome.rb"
+      chdir: "{{autochrome_tmp_path.path}}"
+    ignore_errors: true
+    with_items: "{{ autochrome_usernames }}"
+    loop_control:
+      loop_var: autochrome_username

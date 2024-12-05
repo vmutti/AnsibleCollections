@@ -1,0 +1,24 @@
+- name: "Install tmux if necessary ({{install_tmux}})"
+  when: "'host_install_tmux' in group_names"
+  block:
+  - name: "Installing tmux"
+    become: true
+    apt:
+      update_cache: yes
+      pkg:
+        - tmux
+
+
+  - name: "Copy {{ controller_tmux_config_dir }} for {{ tmux_usernames }}"
+    become: true
+    unarchive:
+      copy: true
+      src: "{{ controller_tmux_config_dir }}/user.tar.gz"
+      dest: "/home/{{ tmux_username }}"
+      # mode: "0600"
+      owner: "{{ tmux_username }}"
+      group: "{{ tmux_username }}"
+    with_items: "{{ tmux_usernames }}"
+    loop_control:
+      loop_var: tmux_username
+    tags: configuration

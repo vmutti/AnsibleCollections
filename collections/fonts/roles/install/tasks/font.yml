@@ -1,0 +1,45 @@
+- name: "Install fonts if necessary ({{install_fonts}})"
+  when: "'host_install_fonts' in group_names"
+  block:
+    - name: Create temporary font download file
+      tempfile:
+        suffix: ".zip"
+        prefix: "font."
+      register: font_temp_file
+
+    - name: "Download font from {{font_url}}"
+      get_url:
+        url: "{{font_url}}"
+        dest: "{{font_temp_file.path}}"
+        force: true
+
+    - name: "Create '/home/{{ font_username }}/.fonts/'' directory if it does not exist"
+      become: true
+      file:
+        path: "/home/{{ font_username }}/.fonts/"
+        owner: "{{ font_username }}"
+        group: "{{ font_username }}"
+        state: directory
+        mode: '0755'
+      with_items: "{{ font_usernames }}"
+      loop_control:
+        loop_var: font_username
+
+    - name: "Extract {{font_temp_file.path}} for {{ font_usernames }}"
+      become: true
+      unarchive:
+        remote_src: true
+        src: "{{font_temp_file.path}}"
+        dest: "/home/{{ font_username }}/.fonts/"
+        mode: "0600"
+        owner: "{{ font_username }}"
+      with_items: "{{ font_usernames }}"
+      loop_control:
+        loop_var: font_username
+
+    - name: "Refresh fonts"
+      become: true
+      command:
+        argv:
+          - "fc-cache"
+          - "-fv"

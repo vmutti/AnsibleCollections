@@ -1,0 +1,23 @@
+- name: "Archive and fetch paths if necessary"
+  when: "fetch_paths_sources is defined and (fetch_paths_sources | length > 0)"
+  block:
+  - name: Create temporary archive file
+    tempfile:
+      state: directory
+      prefix: "{{fetch_paths_temp_prefix | default(omit)}}"
+    register: fetch_paths_temp_archive
+
+  - name: "Archive paths to {{fetch_paths_temp_archive.path}}/config.tar.gz"
+    include_tasks: archive_paths.yml
+    vars:
+      archive_root: "{{fetch_paths_root}}"
+      archive_sources: "{{fetch_paths_sources}}" 
+      archive_dest_prefix: "{{fetch_paths_temp_archive.path}}/config"
+
+  - name: "Fetch configuration to {{ fetch_service_config.controller_config_dir }}"
+    become: true
+    fetch:
+      src: "{{fetch_paths_temp_archive.path}}/config.tar.gz"
+      dest: "{{ fetch_paths_dest }}"
+      flat: true
+      mode: "0660"

@@ -1,0 +1,36 @@
+- name: Copy vagrant project files
+  copy:
+    src: vagrant_project/
+    dest: "{{ vagrant_work_dir }}"
+    mode: '0700'
+- name: Declare empty guest configs
+  set_fact:
+    vagrant_guest_configs: []
+- name: 'Show vagrant guests from {{vagrant_guest_group}}'
+  debug:
+    var: 'groups[vagrant_guest_group]'
+- name: Add to guest config
+  include_tasks: add_guest_config.yml
+  with_items: "{{ groups[vagrant_guest_group] }}"
+  loop_control:
+    loop_var: vagrant_guest_name
+
+- name: Show vagrant guest configs
+  debug:
+    var: vagrant_guest_configs
+    verbosity: 2
+
+- name: Write guest configs
+  copy:
+    dest: "{{ vagrant_work_dir }}/guests.json"
+    mode: '0700'
+    content: "{{ vagrant_guest_configs | to_nice_json }}"
+
+- name: Start Vagrant guests
+  command:  
+    argv:
+    - "{{ vagrant_binary_path }}"
+    - up
+    - "{{item}}"
+    chdir: "{{ vagrant_work_dir }}"
+  with_items: "{{ groups[vagrant_guest_group] }}"

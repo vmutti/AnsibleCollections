@@ -1,0 +1,35 @@
+- name: "Install xfce if necessary ({{install_xfce}})"
+  when: "'host_install_xfce' in group_names"
+  block:
+    - name: "Installing xfce4, konsole and thunar-archive-plugin"
+      become: true
+      apt:
+        update_cache: yes
+        pkg:
+          - xfce4 
+          - thunar-archive-plugin
+
+    - name: "Extract {{ controller_xfce_config_dir }} for system"
+      become: true
+      unarchive:
+        copy: true
+        src: "{{ controller_xfce_config_dir }}/system.tar.gz"
+        dest: "/"
+        mode: "0755"
+        owner: "root"
+      tags: configuration
+
+    - name: "Extract {{ controller_xfce_config_dir }} for {{ xfce_usernames }}"
+      become: true
+      unarchive:
+        copy: true
+        src: "{{ controller_xfce_config_dir }}/user.tar.gz"
+        dest: "/home/{{ xfce_username }}"
+        mode: "0700"
+        owner: "{{ xfce_username }}"
+      with_items: "{{ xfce_usernames }}"
+      loop_control:
+        loop_var: xfce_username
+      tags: configuration
+    
+

@@ -1,0 +1,38 @@
+
+- name: Unseal vault with known unseal keys
+  shell: "{{vault_server_binary_path | quote}} operator unseal {{ item }}"
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:{{ vault_server_port | escape }}"
+  with_items: "{{vault_server_unseal_keys}}"
+  when: vault_server_unseal_keys is defined
+
+- name: Check if vault is sealed
+  shell: "{{vault_server_binary_path | quote}} status"
+  environment:
+    VAULT_ADDR: "http://127.0.0.1:{{ vault_server_port | escape }}"
+  register: vault_server_status_result
+  changed_when: false
+  failed_when: vault_server_status_result.rc==1
+
+- name: User-provided keys required to Unseal
+  when: vault_server_status_result.rc!=0
+  block:
+    - name: Get unseal keys
+      pause:
+        prompt: "Enter unseal keys"
+        echo: no
+      register: vault_server_unseal_keys_prompt
+
+    - name: Unseal vault with entered unseal keys
+      shell: "{{vault_server_binary_path | quote}} operator unseal {{ item }}"
+      environment:
+        VAULT_ADDR: "http://127.0.0.1:{{ vault_server_port | escape }}"
+      with_items: "{{vault_server_unseal_keys_prompt.user_input.split(',')}}"
+
+    - name: Check if vault is sealed
+      shell: "{{vault_server_binary_path | quote}} status"
+      environment:
+        VAULT_ADDR: "http://127.0.0.1:{{ vault_server_port | escape }}"
+      register: vault_server_status_result
+      changed_when: false
+      failed_when: vault_server_status_result.rc!=0

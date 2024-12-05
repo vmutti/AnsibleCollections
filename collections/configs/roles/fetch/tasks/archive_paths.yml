@@ -1,0 +1,31 @@
+# create archive_dest_prefix.tar
+- name: "Create archive file at {{archive_dest_prefix}}.tar"
+  command:
+    argv:
+      - tar
+      - -cf
+      - "{{archive_dest_prefix}}.tar"
+      - -T
+      - /dev/null
+
+- name: "Add each path to {{archive_dest_prefix}}.tar"
+  become: true
+  command:
+    argv:
+      - tar
+      - -rf
+      - "{{archive_dest_prefix}}.tar"
+      - "-C"
+      - "{{archive_root}}"
+      - "{{'--no-recursion' if (archive_source is mapping and 'recurse' in archive_source and archive_source.recurse==false) else ''}}"
+      - "{{archive_source.path if (archive_source is mapping and 'path' in archive_source) else archive_source}}"
+  with_items: "{{ archive_sources }}"
+  loop_control:
+    loop_var: archive_source
+
+- name: "gzip the archive from {{archive_dest_prefix}}.tar to {{archive_dest_prefix}}.tar.gz"
+  archive:
+    format: gz
+    path: "{{archive_dest_prefix}}.tar"
+    dest: "{{archive_dest_prefix}}.tar.gz"
+    remove: True

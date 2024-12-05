@@ -1,0 +1,6 @@
+- name: Unseal vault with known unseal keys
+  command: 
+    argv: "{{[vault_binary_path] + vault_argv}}"
+  environment:
+    VAULT_ADDR: "{{ vault_address }}"
+    VAULT_TOKEN: "{{ vault_token }}"

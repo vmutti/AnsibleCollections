@@ -1,0 +1,7 @@
+- name: "Install chrome if necessary ({{install_chrome}})"
+  when: "'host_install_chrome' in group_names"
+  block:
+    - name: Install chrome
+      become: true
+      apt:
+        deb: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb

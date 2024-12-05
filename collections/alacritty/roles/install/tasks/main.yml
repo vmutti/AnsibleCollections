@@ -1,0 +1,29 @@
+- name: "Install alacritty if necessary ({{install_alacritty}})"
+  when: "'host_install_alacritty' in group_names"
+  block:
+    - name: Install Alacritty packages
+      become: true
+      apt:
+        update_cache: true
+        pkg: alacritty
+
+    - name: "Copy {{ controller_alacritty_config_dir }} for {{ alacritty_usernames }}"
+      become: true
+      unarchive:
+        copy: true
+        src: "{{ controller_alacritty_config_dir }}/user.tar.gz"
+        dest: "/home/{{ alacritty_username }}"
+        mode: "0700"
+        owner: "{{ alacritty_username }}"
+      with_items: "{{ alacritty_usernames }}"
+      loop_control:
+        loop_var: alacritty_username
+      tags: configuration
+    - name: Set default terminal
+      become: true
+      command:  
+        argv:
+        - "update-alternatives"
+        - --set
+        - x-terminal-emulator
+        - /usr/bin/alacritty

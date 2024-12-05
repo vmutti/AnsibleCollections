@@ -1,0 +1,14 @@
+
+
+- name: "Create {{ human_usernames }} user accounts"
+  become: true
+  when: host_setup_human_users
+  user:
+    name: "{{ human_username }}"
+    append: yes
+    create_home: yes
+    groups: 
+      - sudo
+  with_items: "{{ human_usernames }}"
+  loop_control:
+    loop_var: human_username

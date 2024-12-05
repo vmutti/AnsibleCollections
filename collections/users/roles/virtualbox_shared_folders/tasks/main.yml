@@ -1,0 +1,10 @@
+- name: "Add {{ virtualbox_sf_usernames }} to vboxsf"
+  when: host_setup_virtualbox_users
+  become: true
+  user:
+    name: "{{ virtualbox_sf_username }}"
+    append: yes
+    groups: vboxsf
+  with_items: "{{ virtualbox_sf_usernames }}"
+  loop_control:
+    loop_var: virtualbox_sf_username

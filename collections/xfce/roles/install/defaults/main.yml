@@ -1,0 +1,1 @@
+controller_xfce_config_dir: "{{ controller_tools_config_dir }}/xfce"

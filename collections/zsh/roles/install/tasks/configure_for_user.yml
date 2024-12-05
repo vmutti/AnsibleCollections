@@ -1,0 +1,22 @@
+
+- name: "Install OhMyzsh for {{ zsh_username }}"
+  become: true
+  command: "sudo -u {{ zsh_username }} /tmp/ohmyzsh/tools/install.sh --skip-chsh --unattended --keep-zshrc"
+  ignore_errors: true
+
+- name: "Extract {{ controller_zsh_config_dir }}/.zshrc for {{ zsh_username }}"
+  become: true
+  unarchive:
+    copy: true
+    src: "{{ controller_zsh_config_dir }}/user.tar.gz"
+    dest: "/home/{{ zsh_username }}"
+    mode: "0600"
+    owner: "{{ zsh_username }}"
+
+
+- name: "Change shell for {{ zsh_username }} to zsh"
+  become: true
+  user:
+    name: "{{ zsh_username }}"
+    shell: "{{ zsh_binary_path }}"
+

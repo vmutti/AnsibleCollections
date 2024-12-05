@@ -1,0 +1,3 @@
+packer_become: no
+packer_become_user: 'root'
+packer_binary_path: /usr/bin/packer

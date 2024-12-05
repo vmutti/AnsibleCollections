@@ -1,0 +1,9 @@
+---
+vault_server_version: "1.6.2"
+vault_server_arch: "linux_amd64"
+vault_server_checksum: "sha256:75cd2b8c5527577c0da1105e11fba3c31f4112514a910c4f7ec527c9a8bf42d1"
+vault_server_host_prerequisites: ['unzip']
+vault_server_user: "vault"
+vault_server_group: "vault"
+vault_server_config_path: "/etc/vault.hcl"
+vault_server_storage_path: "/var/vault"

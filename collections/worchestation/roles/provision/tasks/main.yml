@@ -1,0 +1,71 @@
+- name: "Include role to update fetch configuration for {{fetch_service_config.name}}"
+  tags:
+    - always
+  include_role:
+    name: "{{worchestation_role.role}}"
+    apply:
+      tags: "{{worchestation_role.tags}}"
+  loop_control:
+    loop_var: worchestation_role
+  loop:
+    - role: makinj.updates.install
+      tags: ['always']
+
+    - role: makinj.virtualbox_guest.install
+      tags: ['virtualbox_guest']
+
+    - role: makinj.users.humans
+      tags: ['user_configuration']
+    
+    - role: makinj.users.virtualbox_shared_folders
+      tags: ['user_configuration']
+    
+    - role: makinj.zsh.install
+      tags: ['base','zsh']
+    
+    - role: makinj.tmux.install
+      tags: ['base','tmux']
+    
+    - role: makinj.vim.install
+      tags: ['base','vim']
+    
+    - role: makinj.xfce.install
+      tags: ['gui','xfce']
+    
+    - role: makinj.fonts.install
+      tags: ['gui','fonts']
+    
+    - role: makinj.background.random
+      tags: ['gui','background']
+    - role: makinj.chrome.install
+      tags: ['gui','chrome']
+
+    - role: makinj.alacritty.install
+      tags: ['gui','alacritty']
+        
+    - role: makinj.sublime.install
+      tags: ['gui','sublime']
+    
+    - role: makinj.docker.install
+      tags: ['tools','infra','docker']
+    
+    - role: makinj.gcloud.install
+      tags: ['tools','infra','gcloud']
+    
+    - role: makinj.kubectl.install
+      tags: ['tools','infra','k8s','kubectl']
+    
+    - role: makinj.kind.install
+      tags: ['tools','infra','k8s','kind']
+    
+    - role: makinj.golang.install
+      tags: ['tools','development','golang']
+
+    - role: makinj.autochrome.install
+      tags: ['tools','security','web','autochrome']
+
+    - role: makinj.mitmproxy.install
+      tags: ['tools','security','web','mitmproxy']
+
+    # - role: makinj.kali.install
+    #   tags: ['tools','security','kali']

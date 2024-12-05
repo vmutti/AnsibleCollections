@@ -1,0 +1,3 @@
+- name: Install scoutsuite python package
+  pip:
+    name: scoutsuite

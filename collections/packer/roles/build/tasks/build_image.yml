@@ -1,0 +1,163 @@
+
+- name: Set variables from item variable
+  set_fact:
+    packer_image_vars: {}
+    packer_image_vars:
+      name: packer_image_name,
+      output_image_path: "{{packer_workdir}}/builds/{{packer_image_name}}.{{packer_packager_extensions[hostvars[vagrant_guest_name]['packager']]}}"
+      host_ip: "{{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+  when: packer_image_name is defined
+
+- name: Copy packer image configs from host variables
+  set_fact:
+    packer_image_vars: "{{ packer_image_vars | combine( [item | combine({'key':item.key[7:]})] | items2dict ) }}"
+  with_items: "{{ dict(hostvars[packer_image_name]) | dict2items}}"
+  loop_control:
+    label: "{{item.key}}"
+  when: item.key.startswith('packer_')
+
+- name: Start with empty configs and stripped vars
+  set_fact:
+    packer_image_config: {}
+    packer_image_vars_stripped: {}
+
+
+- name: Check if {{ packer_image_vars['output_image_path'] }} exists for {{ packer_image_name }}"
+  stat:
+    path: "{{ packer_image_vars['output_image_path'] }}"
+  register: packer_image_path_stat
+
+- name: "Build {{ packer_image_name }} if necessary"
+  when: (not packer_image_path_stat.stat.exists)
+  block:
+    - 
+    - name: "Copy static http files for {{ packer_image_vars['distro'] }} to {{ packer_workdir }}/http/{{ packer_image_name }}"
+      copy:
+        src: "{{controller_packer_config_dir}}/distros/{{ packer_image_vars['distro'] }}/http/"
+        dest: "{{ packer_workdir }}/http/{{ packer_image_vars['distro'] }}"
+        mode: '0700'
+      ignore_errors: yes
+
+    - name: "load default configs sections"
+      set_fact:
+        packer_image_config_provisioners: []
+        packer_image_provisioner_roles: "{{ lookup('file',controller_packer_config_dir+'/default/provisioner_roles.json', errors='ignore')| default('[]',true) | from_json }}"
+        packer_image_config_builder: "{{ lookup('file',controller_packer_config_dir+'/default/builder.json', errors='ignore')| default('{}',true) | from_json  }}"
+        packer_image_config_post_processor: "{{ lookup('file',controller_packer_config_dir+'/default/post_processor.json', errors='ignore') | default('{}',true) | from_json }}"
+
+    - name: "Debug packer image config for {{ packer_image_name }}"
+      debug:
+        var: packer_image_provisioner_roles
+
+    - name: "merge configs sections between default, platform, and distro"
+      set_fact:
+        packer_image_provisioner_roles: "{{ packer_image_provisioner_roles | default([]) + (lookup('file',controller_packer_config_dir+'/'+item.1+'/'+(packer_image_vars[item.0])+'/provisioner_roles.json', errors='ignore') | default('[]', true) | from_json) }}"
+        packer_image_config_builder: "{{ packer_image_config_builder | default({}) | combine(lookup('file',controller_packer_config_dir+'/'+item.1+'/'+(packer_image_vars[item.0])+'/builder.json', errors='ignore') | default('{}', true) | from_json) }}"
+        packer_image_config_post_processor: "{{ packer_image_config_post_processors | default({}) | combine(lookup('file',controller_packer_config_dir+'/'+item.1+'/'+(packer_image_vars[item.0])+'/post_processor.json', errors='ignore') | default('{}', true) | from_json) }}"
+      loop:
+        - ["platform","platforms"]
+        - ["distro","distros"]
+        - ["packager","packagers"]
+
+    - name: "merge configs sections for the profiles"
+      set_fact:
+        packer_image_provisioner_roles: "{{ packer_image_provisioner_roles | default([]) + (lookup('file',controller_packer_config_dir+'/profiles/'+item+'/provisioner_roles.json', errors='ignore') | default('[]', true) | from_json) }}"
+        packer_image_config_builder: "{{ packer_image_config_builder | default({}) | combine(lookup('file',controller_packer_config_dir+'/profiles/'+item+'/builder.json', errors='ignore') | default('{}', true) | from_json) }}"
+        packer_image_config_post_processor: "{{ packer_image_config_post_processors | default({}) | combine(lookup('file',controller_packer_config_dir+'/profiles/'+item+'/post_processor.json', errors='ignore') | default('{}', true) | from_json) }}"
+      with_items: "{{ packer_image_vars['profiles'] }}"
+      when: "'profiles' in packer_image_vars"
+
+    - name: "run the provisioner role packer configurers"
+      include_role:
+        name: "{{ item }}"
+        tasks_from: "packer"
+      with_items: "{{ packer_image_provisioner_roles }}"
+    
+
+    - name: "Make image builder config for {{ packer_image_name }} with platform={{ packer_image_vars['platform'] }}, distro={{ packer_image_vars['distro'] }}, and packager={{ packer_image_vars['packager'] }}"
+      set_fact:
+        _packer_image_config:
+          builders:
+            - "{{packer_image_config_builder}}"
+          provisioners: "{{packer_image_config_provisioners}}"
+          post-processors:
+            - "{{packer_image_config_post_processor}}"
+
+    - name: "Strip empty portions of the builder config for {{ packer_image_name }}"
+      set_fact:
+        packer_image_config: "{{packer_image_config |combine({item.key: item.value})}}"
+      when: "(item.value|length > 0) and (item.value[0]!={})"
+      with_dict: "{{_packer_image_config}}"
+
+
+    - name: "Strip empty portions of the builder config for {{ packer_image_name }}"
+      set_fact:
+        packer_image_vars_stripped: "{{packer_image_vars_stripped |combine({item.key: item.value})}}"
+      when: "(item.value is string)"
+      with_dict: "{{packer_image_vars}}"
+
+    # write image packer config
+
+
+
+    - name: "Debug packer image config for {{ packer_image_name }}"
+      debug:
+        var: packer_image_config
+        verbosity: 3
+
+    - name: Create packer subdirs if they do not exist
+      file:
+        path: "{{ packer_workdir }}/{{ item }}"
+        state: directory
+        mode: '0700'
+      with_items:
+        - configs
+        - vars
+        - builds
+        - logs
+
+    - name: "Write packer config for {{ packer_image_name }}"
+      copy:
+        dest: "{{ packer_workdir }}/configs/{{ packer_image_name }}.json"
+        mode: '0700'
+        content: "{{ packer_image_config | to_nice_json }}"
+
+    - name: "Write packer image variables for {{ packer_image_name }}"
+      copy:
+        dest: "{{ packer_workdir }}/vars/{{ packer_image_name }}.json"
+        mode: '0700'
+        content: "{{ packer_image_vars_stripped | to_nice_json }}"
+
+    - name: Make empty log file
+      file:
+        path: "{{ packer_workdir }}/logs/{{packer_image_name}}.log.txt"
+        state: touch
+        mode: '0700'
+
+    - name: "Kick off build job for {{ packer_image_name }} image with packer"
+      command:
+        argv:
+          - "{{ packer_binary_path }}"
+          - build
+          - -force
+          - -var-file
+          - "./vars/{{ packer_image_name }}.json"
+          - "./configs/{{ packer_image_name }}.json"
+        chdir: "{{ packer_workdir }}"
+      environment:
+        PACKER_LOG: 1
+        PACKER_LOG_PATH: "./logs/{{packer_image_name}}.log.txt"
+      vars:
+        ansible_become: "{{packer_become}}"
+        ansible_become_user: "{{packer_become_user}}"
+      async: "{{ 2*60*60 }}"
+      poll: 0
+      register: packer_image_build_job
+      tags:
+        packer_build
+    - name: "store job ID {{packer_image_build_job.ansible_job_id}}"
+      set_fact:
+        packer_image_build_jobs: "{{ packer_image_build_jobs | default([]) + ([packer_image_build_job.ansible_job_id]) }}"
+      tags:
+        packer_build
+

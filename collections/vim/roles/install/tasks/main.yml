@@ -1,0 +1,16 @@
+- name: "Install vim if necessary ({{install_vim}})"
+  when: "'host_install_vim' in group_names"
+  block:
+  - name: "Installing vim"
+    become: true
+    apt:
+      update_cache: yes
+      pkg:
+        - vim
+        - git
+
+  - name: "Configure vim for each user"
+    include_tasks: configure_for_user.yml
+    with_items: "{{ vim_usernames }}"
+    loop_control:
+      loop_var: vim_username
