@@ -27,6 +27,8 @@ jobs:
         pip install ansible
     - name: Release With Galaxy
       run: "./release.py"
+      env:
+        ANSIBLE_GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
     - name: Push updated versions
       run: |
         git config user.name "makinj"
