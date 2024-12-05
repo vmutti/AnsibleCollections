@@ -1,0 +1,11 @@
+- name: Stop vault service
+  include_role:
+    name: "{{ vault_server_manage_role }}"
+  vars:
+    vault_server_state: stopped
+
+- name: Destroy Storage directory
+  file:
+    path: "{{ vault_hypervisor_storage_path }}"
+    state: absent
+  when: vault_server_db_destroy_confirm | bool

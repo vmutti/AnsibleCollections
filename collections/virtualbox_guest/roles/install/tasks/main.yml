@@ -1,0 +1,5 @@
+- name: "Install Virtualbox guest additions if necessary ({{host_install_virtualbox_guest}})"
+  when: "'host_install_virtualbox_guest' in group_names"
+  block:
+    - name: "Include appropriate distro tasks to install guest additions for {{virtualbox_guest_distro}}"
+      include_tasks: "./{{virtualbox_guest_distro}}.yml"

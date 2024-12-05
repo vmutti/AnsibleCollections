@@ -1,0 +1,22 @@
+- name: "Install gcloud if necessary ({{host_install_gcloud}})"
+  when: "'host_install_gcloud' in group_names"
+  block:
+  - name: Install GPG key for GCP SDK
+    become: true
+    apt_key:
+      url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+      state: present
+
+  - name: Add Gcloud repositories into sources list
+    become: true
+    apt_repository:
+      repo: "deb http://packages.cloud.google.com/apt cloud-sdk main"
+      state: present
+      filename: google-cloud-sdk
+
+  - name: Install packages
+    become: true
+    apt:
+      update_cache: true
+      pkg: 
+        - google-cloud-sdk

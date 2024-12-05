@@ -1,0 +1,5 @@
+packer_packager_extensions:
+  vagrant: box
+  iso: iso
+  img: img
+controller_packer_config_dir: "{{worchestation_config_dir}}/packer"

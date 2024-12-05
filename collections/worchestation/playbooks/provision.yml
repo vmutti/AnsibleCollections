@@ -1,0 +1,5 @@
+- name: Provision Worchestation Hosts
+  hosts: "{{target_hosts|default('all')}}:&worchestation:&running"
+  roles: 
+    - role: makinj.worchestation.provision
+  strategy: "free"

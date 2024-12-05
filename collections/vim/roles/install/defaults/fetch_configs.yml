@@ -1,0 +1,3 @@
+vim_user_config_paths:
+  - .vimrc
+  - .vim_runtime/

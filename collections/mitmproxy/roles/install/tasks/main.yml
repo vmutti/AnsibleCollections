@@ -1,0 +1,18 @@
+- name: "Install mitmproxy if necessary"
+  when: "'host_install_mitmproxy' in group_names"
+  block:
+    - name: Create temporary directory for mitmproxy
+      tempfile:
+        state: file
+      register: mitmproxy_tmp_path
+    - name: "Download mitmproxy binaries"
+      get_url:
+        url: "https://downloads.mitmproxy.org/{{mitmproxy_version}}/mitmproxy-{{mitmproxy_version}}-linux-{{ansible_facts.userspace_architecture}}.tar.gz"
+        dest: "{{mitmproxy_tmp_path.path}}.tar.gz"
+    - name: "Extract mitmproxy binaries"
+      unarchive:
+        remote_src: true
+        src: "{{mitmproxy_tmp_path.path}}.tar.gz"
+        dest: "{{mitmproxy_install_dir}}"
+        mode: "0755"
+      become: true

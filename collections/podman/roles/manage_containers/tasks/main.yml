@@ -1,0 +1,10 @@
+
+- name: 'Show Podman guests from {{podman_guest_group}}'
+  debug:
+    var: 'groups[podman_guest_group]'
+- name: Add to guest config
+  include_tasks: manage-container.yml
+  with_items: "{{ groups[vagrant_guest_group] }}"
+  loop_control:
+    loop_var: vagrant_guest_name
+

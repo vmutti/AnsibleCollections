@@ -1,0 +1,9 @@
+
+- name: "Add xfce paths to list"
+  set_fact:
+    fetch_service_config: "{{ fetch_service_config | combine({item.key: (fetch_service_config[item.key] | default([]) | union(item.value))}) }}"
+  with_dict:
+    user_paths: "{{xfce_user_config_paths}}"
+    system_paths: "{{xfce_system_config_paths}}"
+
+

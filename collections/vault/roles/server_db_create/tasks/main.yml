@@ -1,0 +1,28 @@
+- name: Attempt to create the db
+  block:
+    - name: Initialise Vault DB
+      shell: "vault operator init -key-shares=1 -key-threshold=1 -format json"
+      environment:
+        VAULT_ADDR: "http://127.0.0.1:{{ vault_server_port | escape }}"
+      register: vault_server_db_create_results
+
+    - name: Parse output of vault DB init
+      set_fact:
+        vault_server_db_create_results_parsed: "{{ vault_server_db_create_results.stdout | from_json }}"
+    - name: Set root token based on parsed DB init results
+      set_fact:
+        vault_server_root_token: "{{ vault_server_db_create_results_parsed.root_token }}"
+    - name: Set unseal keys based on parsed DB init results
+      set_fact:
+        vault_server_unseal_keys: "{{ vault_server_db_create_results_parsed.unseal_keys_hex }}"
+    - name: Print tokens and keys
+      debug:
+        msg: 
+          - "Root token: {{vault_server_root_token}}"
+          - "Unseal keys: {{vault_server_unseal_keys | join(', ')}}"
+  rescue:
+    - name: Print when errors
+      debug:
+        msg: 'The vault server has already been initialized, so no need to create one.'
+      failed_when: "not 'Vault is already initialized' in vault_server_db_create_results.stderr"
+

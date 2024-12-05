@@ -1,0 +1,21 @@
+- name: "Install kali if necessary"
+  when: "'host_install_kali' in group_names"
+  block:
+    - name: Install kali keyring
+      become: true
+      apt:
+        deb: https://http.kali.org/pool/main/k/kali-archive-keyring/kali-archive-keyring_2024.1_all.deb
+
+    - name: Add kali repositories into sources list
+      become: true
+      apt_repository:
+        repo: "deb http://http.kali.org/kali kali-last-snapshot main contrib non-free non-free-firmware"
+        state: present
+        filename: kali
+
+    - name: Install kali packages
+      become: true
+      apt:
+        update_cache: true
+        pkg: "{{kali_packages}}"
+

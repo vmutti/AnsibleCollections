@@ -1,0 +1,13 @@
+- name: Set permissions on Storage directory
+  file:
+    path: "{{ vault_hypervisor_storage_path }}"
+    state: directory
+    mode: 0770
+- name: "run the podman manager"
+  include_role:
+    name: "makinj.podman.manage_containers"
+    tasks_from: "manage-container"
+  vars:
+    podman_containers_state: "{{vault_server_state}}"
+    podman_guest_name: "{{vault_server_guest_name}}"
+    

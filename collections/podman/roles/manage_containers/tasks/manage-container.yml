@@ -1,0 +1,21 @@
+- name: "Manage Podman Guest {{podman_guest_name}} to state {{podman_containers_state}}"
+  containers.podman.podman_container:
+    name: "{{podman_guest_name}}"
+    image: "{{hostvars[podman_guest_name]['podman_image']}}"
+    command: "{{hostvars[podman_guest_name]['podman_command']}}"
+    volumes: "{{hostvars[podman_guest_name]['podman_volumes']}}"
+    env: "{{hostvars[podman_guest_name]['podman_env']}}"
+    cap_add: "{{hostvars[podman_guest_name]['podman_cap_add']}}"
+    hostuser: "{{hostvars[podman_guest_name]['podman_hostuser'] | default('')}}"
+    # entrypoint: "{{hostvars[podman_guest_name]['podman_entrypoint'] | default('')}}"
+    userns: "{{hostvars[podman_guest_name]['podman_userns'] | default('')}}"
+    uidmap: "{{hostvars[podman_guest_name]['podman_uidmap'] | default([])}}"
+    gidmap: "{{hostvars[podman_guest_name]['podman_gidmap'] | default([])}}"
+    state: "{{podman_containers_state}}"
+
+- name: "Install python interpreter in {{podman_guest_name}}"
+  when: "(hostvars[podman_guest_name]['podman_alpine_python_install'] |default(false)) and podman_containers_state=='started'"
+  containers.podman.podman_container_exec:
+    name: "{{podman_guest_name}}"
+    command: "apk add --update python3"
+    user: "root:root"

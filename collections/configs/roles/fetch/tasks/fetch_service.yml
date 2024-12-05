@@ -1,0 +1,36 @@
+---
+- name: "Get service facts for {{fetch_service.name}}"
+  set_fact:
+    fetch_service_config:
+      name: "{{fetch_service.name | mandatory}}"
+      role: "{{fetch_service.role | default('')}}"
+      username: "{{fetch_service.username | default(fetch_default_username)}}"
+      controller_config_dir: "{{fetch_service.controller_config_dir | default(fetch_default_controller_config_dir+'/'+fetch_service.name)}}"
+      user_paths: "{{fetch_service.user_paths | default([])}}"
+      system_paths: "{{fetch_service.system_paths | default([])}}"
+
+- name: "Include role to update fetch configuration for {{fetch_service_config.name}}"
+  include_role:
+    name: "{{fetch_service_config.role}}"
+    tasks_from: "fetch_configs.yml"
+    defaults_from: "fetch_configs.yml"
+  when: "fetch_service_config.role"
+
+- name: "Fetch system paths for {{fetch_service.name}}"
+  when: "'system_paths' in fetch_service_config and (fetch_service_config.system_paths | length > 0)"
+  include_tasks: fetch_paths.yml
+  vars:
+    fetch_paths_root: "/"
+    fetch_paths_sources: "{{fetch_service_config.system_paths}}"
+    fetch_paths_dest: "{{ fetch_service_config.controller_config_dir }}/system.tar.gz"
+    fetch_paths_temp_prefix: "{{fetch_service.name}}.system."
+
+- name: "Fetch user paths for {{fetch_service.name}}"
+  when: "'user_paths' in fetch_service_config and (fetch_service_config.user_paths | length > 0)"
+  include_tasks: fetch_paths.yml
+  vars:
+    fetch_paths_root: "/home/{{fetch_service_config.username}}"
+    fetch_paths_sources: "{{fetch_service_config.user_paths}}"
+    fetch_paths_dest: "{{ fetch_service_config.controller_config_dir }}/user.tar.gz"
+    fetch_paths_temp_prefix: "{{fetch_service.name}}.user."
+

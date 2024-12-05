@@ -1,0 +1,1 @@
+controller_alacritty_config_dir: "{{ controller_tools_config_dir }}/alacritty"

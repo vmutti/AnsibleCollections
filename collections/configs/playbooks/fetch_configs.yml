@@ -1,0 +1,4 @@
+- name: Backup configurations for services
+  hosts: "!not_running"
+  roles: 
+    - makinj.configs.fetch

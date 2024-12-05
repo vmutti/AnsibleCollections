@@ -1,0 +1,22 @@
+
+- name: Ensure Vault Config paths exists
+  file:
+    path: "{{vault_hypervisor_config_path}}"
+    mode: 0770
+    state: directory
+- name: Write Vault config
+  copy:
+    dest: "{{ vault_hypervisor_config_path }}/vault.json"
+    mode: '0660'
+    content: "{{ vault_tls_disabled_config | to_nice_json }}"
+
+- name: Stop vault service
+  include_role:
+    name: "{{ vault_server_manage_role }}"
+  vars:
+    vault_server_state: stopped
+- name: Start vault service
+  include_role:
+    name: "{{ vault_server_manage_role }}"
+  vars:
+    vault_server_state: started

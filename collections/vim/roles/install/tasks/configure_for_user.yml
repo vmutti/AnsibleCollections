@@ -1,0 +1,23 @@
+- name: "Copy {{ controller_vim_config_dir }} for {{ vim_username }}"
+  become: true
+  unarchive:
+    copy: true
+    src: "{{ controller_vim_config_dir }}/user.tar.gz"
+    dest: "/home/{{ vim_username }}"
+    owner: "{{ vim_username }}"
+    group: "{{ vim_username }}"
+  tags: configuration
+# - name: "Clone vimrc files for {{ vim_username }}"
+#   become: true
+#   git:
+#     repo: https://github.com/amix/vimrc.git
+#     dest: "/home/{{ vim_username }}/.vim_runtime/"
+# - name: Ensure Correct permissions for .vim_runtime
+#   file:
+#     path: "/home/{{ vim_username }}/.vim_runtime/"
+#     mode: 0770
+#     state: directory
+# - name: "Install vimrc_plugins for {{ vim_username }}"
+#   become: true
+#   command: "sudo -u {{ vim_username }} /home/{{ vim_username }}/.vim_runtime/install_awesome_vimrc.sh"
+#   ignore_errors: true

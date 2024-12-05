@@ -1,0 +1,10 @@
+- name: "Install kind if necessary"
+  when: "'host_install_kind' in group_names"
+  block:
+    - name: "Download kind binary"
+      get_url:
+        url: https://kind.sigs.k8s.io/dl/v{{kind_version}}/kind-{{ansible_system | lower}}-{{kind_architecture_name_mapping[ansible_facts.userspace_architecture]}}
+        dest: "/usr/local/bin/kind"
+        mode: "0755"
+        force: true
+      become: true

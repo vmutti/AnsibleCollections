@@ -1,0 +1,9 @@
+- name: "Install fonts if necessary ({{install_fonts}})"
+  when: "'host_install_fonts' in group_names"
+  block:
+    - name: "Configure each font"
+      include_tasks: font.yml
+
+      with_items: "{{ font_urls }}"
+      loop_control:
+        loop_var: font_url

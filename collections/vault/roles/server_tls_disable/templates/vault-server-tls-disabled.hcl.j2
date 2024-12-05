@@ -1,0 +1,8 @@
+storage "file" {
+  path = "{{ vault_server_storage_path }}"
+}
+
+listener "tcp" {
+	address     = "127.0.0.1:{{ vault_server_port | escape }}"
+	tls_disable = 1
+}

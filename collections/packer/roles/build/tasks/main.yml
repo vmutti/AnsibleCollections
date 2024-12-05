@@ -1,0 +1,30 @@
+- name: 'Build Packer Images'
+  makinj.packer.packer_build:
+    image_hosts: groups[packer_guest_group]
+
+- name: 'Show vagrant guests from {{packer_guest_group}}'
+  debug:
+    var: 'groups[packer_guest_group]'
+- name: Build each image
+  include_tasks: build_image.yml
+  with_items: "{{ groups[packer_guest_group] }}"
+  loop_control:
+    loop_var: packer_image_name
+
+- name: "Waiting for {{packer_image_build_jobs | default([])|length}} packer images builds to complete"
+  async_status:
+    jid: "{{item}}"
+  register: job_result
+  until: "('finished' in job_result and job_result.finished) or ('results' in job_result and len(job_result.results)>0 and 'finished' in job_result.results[0] and job_result.results[0].finished)"
+  retries: "{{ 2*60 | int }}"
+  delay: 60
+  loop: "{{packer_image_build_jobs}}"
+  when: packer_image_build_jobs is defined
+  vars:
+    ansible_become: "{{packer_become}}"
+    ansible_become_user: "{{packer_become_user}}"
+
+- name: "Debug {{packer_image_build_jobs | default([])|length}} packer images builds to complete"
+  debug:
+    var: job_result
+    #verbosity: 3

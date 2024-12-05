@@ -1,0 +1,8 @@
+---
+
+- name: "fetching configs for {{fetch_services}}"
+  include_tasks: fetch_service.yml
+  with_items: "{{ fetch_services }}"
+  loop_control:
+    loop_var: fetch_service
+

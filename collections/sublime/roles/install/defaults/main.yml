@@ -1,0 +1,1 @@
+controller_sublime_config_dir: "{{ controller_tools_config_dir }}/sublime"

@@ -1,0 +1,3 @@
+sublime_user_config_paths:
+  - {path: ".config/", recurse: false}
+  - .config/sublime-text

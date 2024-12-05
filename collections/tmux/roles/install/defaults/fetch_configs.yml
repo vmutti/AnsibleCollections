@@ -1,0 +1,4 @@
+tmux_user_config_paths:
+  - .tmux.conf
+  - .tmux.conf.local
+  - .tmux/
