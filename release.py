@@ -5,6 +5,12 @@ import os
 import yaml
 import re
 
+def header(message,char='*'):
+    message = " "+message+" "
+    count_l = int(((50-len(message))/2)/len(char))
+    count_r = int((50-len(message)-count_l)/len(char))
+    print(char*count_l+message+(char*count_r))
+
 collections_dir = os.getcwd()+"/.ansible"
 subprocess.run(
     [
@@ -34,7 +40,9 @@ collections_results = subprocess.run(
 collections = json.loads(collections_results.stdout)
 target_collections = collections[collections_dir+'/ansible_collections'].keys()
 
+
 for collection in target_collections:
+    header(collection,'#')
     verify_results = subprocess.run(
         [
             'ansible-galaxy',
@@ -62,8 +70,8 @@ for collection in target_collections:
             new_version = '.'.join(
                version_parts[:2]+[str(int(version_parts[2])+1)]
             )
-            print(collection,old_version,'=>',new_version)
             print(verify_output)
+            header('Bumping '+collection+' version '+old_version+' => '+new_version,'*')
 
             galaxy_file.seek(0)
             galaxy_file_contents = galaxy_file.read()
@@ -78,6 +86,7 @@ for collection in target_collections:
             galaxy_file.write(new_galaxy_file)
             galaxy_file.truncate()
     if modified or missing:
+        header('Bundling '+collection,'*')
         bundle_results = subprocess.run(
             [
                 'ansible-galaxy',
@@ -91,6 +100,7 @@ for collection in target_collections:
         )
         bundle_path = bundle_results.stdout.decode().split(' ')[-1].strip()
         print(bundle_results.stdout.decode().strip())
+        header('Publishing '+collection,'*')
         subprocess.run(
             [
                 'ansible-galaxy',
@@ -101,4 +111,6 @@ for collection in target_collections:
                 os.environ['ANSIBLE_GALAXY_TOKEN']
             ], 
         )
+    else:
+        header('Up to date','*')
 
