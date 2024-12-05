@@ -46,10 +46,14 @@ for collection in target_collections:
         ],
         capture_output=True
     )
+    verify_output=verify_results.stdout.decode()
+    verify_errors=verify_results.stderr.decode()
     modified_message = 'contains modified content in the following files'
-    modified = modified_message in verify_results.stdout.decode()
+    modified = modified_message in verify_output
+    missing_message = 'HTTP Code: 404, Message: Not found.'
+    missing=verify_results.returncode==1 and missing_message in verify_errors
+    collection_path = './collections/'+collection.split('.')[1] 
     if modified:
-        collection_path = './collections/'+collection.split('.')[1] 
         galaxy_file_path = collection_path+'/galaxy.yml'
         with open(galaxy_file_path,'r+') as galaxy_file:
             galaxy_contents = yaml.safe_load(galaxy_file)
@@ -59,7 +63,7 @@ for collection in target_collections:
                version_parts[:2]+[str(int(version_parts[2])+1)]
             )
             print(collection,old_version,'=>',new_version)
-            print(modified_message)
+            print(verify_output)
 
             galaxy_file.seek(0)
             galaxy_file_contents = galaxy_file.read()
@@ -73,7 +77,7 @@ for collection in target_collections:
             )
             galaxy_file.write(new_galaxy_file)
             galaxy_file.truncate()
-        
+    if modified or missing:
         bundle_results = subprocess.run(
             [
                 'ansible-galaxy',
@@ -85,8 +89,8 @@ for collection in target_collections:
             ], 
             capture_output=True
         )
-        bundle_path = bundle_results.stdout.decode().split(' ')[-1]
-        print(bundle_results)
+        bundle_path = bundle_results.stdout.decode().split(' ')[-1].strip()
+        print(bundle_results.stdout.decode().strip())
         subprocess.run(
             [
                 'ansible-galaxy',
