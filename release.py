@@ -67,7 +67,7 @@ for collection in target_collections:
                 galaxy_file_contents,
                 1
             )
-            galaxy_file.write()
+            galaxy_file.write(new_galaxy_file)
             galaxy_file.truncate()
         bundle_results = subprocess.run(
             [
