@@ -44,7 +44,7 @@ tags: ['inventory','combined_groups','inverted_groups']
 dependencies: {}
 
 # The URL of the originating SCM repository
-repository: https://github.com/makinj/Worchestation
+repository: https://github.com/makinj/AnsibleCollections
 
 # The URL to any online docs
 # documentation: http://docs.example.com
@@ -53,7 +53,7 @@ repository: https://github.com/makinj/Worchestation
 # homepage: http://example.com
 
 # The URL to the collection issue tracker
-issues: https://github.com/makinj/Worchestation/issues
+issues: https://github.com/makinj/AnsibleCollections/issues
 
 # A list of file glob-like patterns used to filter any files or directories that should not be included in the build
 # artifact. A pattern is matched from the relative path of the file or directory of the collection directory. This
