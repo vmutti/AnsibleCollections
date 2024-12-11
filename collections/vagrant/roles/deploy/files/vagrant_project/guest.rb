@@ -9,7 +9,7 @@ class Guest
 
     # Check mandatory configs
     @name = @config.has_key?("name") ? @config['name'] : raise("must provide name for machine")
-    @box = @config.has_key?("box") ? @config['box'] : raise("must provide box to use for #{@name}") 
+    @box = @config.has_key?("box_name") ? @config['box_name'] : raise("must provide box to use for #{@name}") 
     @ssh_private_key_path = @config.has_key?("ssh_private_key_path") ? @config['ssh_private_key_path'] : raise("must provide ssh_private_key_path for #{@name}") 
     
 
