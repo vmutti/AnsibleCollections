@@ -5,10 +5,20 @@
 - name: "Copy vagrant guest configs from host variables for {{vagrant_guest_name}}"
   set_fact:
     vagrant_guest_config: "{{ vagrant_guest_config | combine( [item | combine({'key':item.key[8:]})] | items2dict ) }}"
-  with_items: "{{ dict(hostvars[vagrant_guest_name]) | dict2items}}"
+  with_items: "{{ dict(hostvars[vagrant_guest_name]) | dict2items | selectattr('key','match','^vagrant_.*$')}}"
   loop_control:
     label: "{{item.key}}"
-  when: item.key.startswith('vagrant_')
+
+- name: list vagrant boxes to see if already added
+  command:
+    argv:
+      - "{{ vagrant_binary_path }}"
+      - box
+      - list
+      - --machine-readable
+  register: 
+    vagrant_box_list
+
 - name: build vagrant box add command
   tags:
     - vagrant_box_add
@@ -30,6 +40,7 @@
   command:  
     argv: "{{vagrant_box_add_command_args}}"
   ignore_errors: true
+  when: vagrant_box_list.stdout | community.general.from_csv(fieldnames=['id','blank','name','value','extra']) | selectattr('name','==','box-name') | selectattr('value','==',hostvars[vagrant_guest_name].vagrant_box_name) | length == 0
 - name: "Add guest name=\"{{ vagrant_guest_name }}\""
   set_fact:
     vagrant_guest_config: "{{ vagrant_guest_config | combine( {'name': vagrant_guest_name} ) }}"
