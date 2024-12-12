@@ -20,6 +20,7 @@ class Guest
       setup_workspace_dir(@config['workspace_path'])
     end
 
+
     @username = @config.has_key?("username") ? @config['username'] : 'vagrant'
     @autostart = @config.has_key?("autostart") ? @config['autostart'] : false
     @home_path = @config.has_key?("home_path") ? @config['home_path'] : "/home/#{@username}"
@@ -53,6 +54,12 @@ class Guest
     if @config.has_key?("networks")
       @config['networks'].each do |network|
         setup_network(network)
+      end
+    end
+
+    if @config.has_key?("shaed_folders")
+      @config['shared_folders'].each do |shared_folder|
+        sync_dir(shared_folder['src'],shared_folder['name'])
       end
     end
 
