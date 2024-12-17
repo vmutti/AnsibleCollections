@@ -64,6 +64,6 @@
     verbosity: 2
 
 
-- name: "Add to guest {{vagrant_guest_name}} to list"
+- name: "Add guest {{vagrant_guest_name}} to list"
   set_fact:
     vagrant_guest_configs: "{{ vagrant_guest_configs + [vagrant_guest_config] }}"
