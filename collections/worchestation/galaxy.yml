@@ -1,4 +1,4 @@
-namespace: makinj
+namespace: vmutti
 name: worchestation
 
 version: 1.0.10
@@ -45,7 +45,7 @@ dependencies:
   # makinj.packer: '>=1.0.0'
   # makinj.vagrant: '>=1.0.0'
   # makinj.vault: '>=1.0.0'
-repository: https://github.com/makinj/AnsibleCollections
-issues: https://github.com/makinj/AnsibleCollections/issues
+repository: https://github.com/vmutti/AnsibleCollections
+issues: https://github.com/vmutti/AnsibleCollections/issues
 build_ignore: []
 
