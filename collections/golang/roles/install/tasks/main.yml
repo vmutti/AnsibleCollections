@@ -10,8 +10,8 @@
     - name: "Update PATH for golang users"
       lineinfile:
         path: "/home/{{golang_username}}/.zshrc"
-        line: "export PATH=$PATH:{{golang_install_dir}}/bin:$GOPATH/bin"
-        search_string: "export PATH=$PATH:{{golang_install_dir}}/bin:$GOPATH/bin"
+        line: "export PATH=$PATH:{{golang_install_dir}}/go/bin:$GOPATH/bin"
+        search_string: "export PATH=$PATH:{{golang_install_dir}}/go/bin:$GOPATH/bin"
       with_items: "{{ golang_usernames }}"
       loop_control:
         loop_var: golang_username
