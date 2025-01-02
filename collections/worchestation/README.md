@@ -7,11 +7,11 @@ I also have tools for managing these configurations once you tweak them and for 
 
 ## Building a disk image
 
-You can use an existing box or use my [build scripts](https://github.com/makinj/PackerImages) to make your own with Worchestation already applied.
+You can use an existing box or use my [build scripts](https://github.com/vmutti/PackerImages) to make your own with Worchestation already applied.
 
 ## Setting up a VM
 
-Use the configuration instructions at [makinj.vagrant](https://galaxy.ansible.com/ui/repo/published/makinj/vagrant/) to configure your inventory and then use `makinj.worchestation.deploy` to deploy the vagrant machines and provision them.
+Use the configuration instructions at [vmutti.vagrant](https://galaxy.ansible.com/ui/repo/published/vmutti/vagrant/) to configure your inventory and then use `vmutti.worchestation.deploy` to deploy the vagrant machines and provision them.
 
 ## Provisioning
 

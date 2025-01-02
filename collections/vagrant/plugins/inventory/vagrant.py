@@ -16,7 +16,7 @@ DOCUMENTATION = '''
         plugin:
             description: Token that ensures this is a source file for the plugin.
             required: True
-            choices: ['vagrant','makinj.vagrant.vagrant']
+            choices: ['vagrant','vmutti.vagrant.vagrant']
         project_path:
             description:
                 - The path directory where Vagrant commands will be run
@@ -29,7 +29,7 @@ DOCUMENTATION = '''
 EXAMPLES = r'''
 # example vagrant.yml file
 ---
-plugin: makinj.vagrant.vagrant
+plugin: vmutti.vagrant.vagrant
 project_path: ~/vagrant/
 '''
 
@@ -75,7 +75,7 @@ inventory={}
 
 class InventoryModule(BaseFileInventoryPlugin, Cacheable):
 
-    NAME = 'makinj.vagrant.vagrant'
+    NAME = 'vmutti.vagrant.vagrant'
 
     def verify_file(self, path):
       super(InventoryModule, self).verify_file(path)

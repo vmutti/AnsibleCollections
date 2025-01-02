@@ -1,4 +1,4 @@
 - name: Deploy to vagrant hypervisors
   hosts: "{{target_hosts|default('all')}}:&vagrant_hypervisor"
   roles: 
-    - makinj.vagrant.deploy
+    - vmutti.vagrant.deploy

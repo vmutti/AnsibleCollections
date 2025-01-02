@@ -8,64 +8,62 @@
   loop_control:
     loop_var: worchestation_role
   loop:
-    - role: makinj.updates.install
+    - role: vmutti.updates.install
       tags: ['always']
 
-    - role: makinj.virtualbox_guest.install
+    - role: vmutti.virtualbox_guest.install
       tags: ['virtualbox_guest']
 
-    - role: makinj.users.humans
+    - role: vmutti.users.humans
       tags: ['user_configuration']
     
-    - role: makinj.users.virtualbox_shared_folders
+    - role: vmutti.users.virtualbox_shared_folders
       tags: ['user_configuration']
     
-    - role: makinj.zsh.install
+    - role: vmutti.zsh.install
       tags: ['base','zsh']
     
-    - role: makinj.tmux.install
+    - role: vmutti.tmux.install
       tags: ['base','tmux']
     
-    - role: makinj.vim.install
+    - role: vmutti.vim.install
       tags: ['base','vim']
     
-    - role: makinj.xfce.install
+    - role: vmutti.xfce.install
       tags: ['gui','xfce']
     
-    - role: makinj.fonts.install
+    - role: vmutti.fonts.install
       tags: ['gui','fonts']
-    
-    - role: makinj.background.random
-      tags: ['gui','background']
-    - role: makinj.chrome.install
+
+    - role: vmutti.chrome.install
       tags: ['gui','chrome']
 
-    - role: makinj.alacritty.install
+    - role: vmutti.alacritty.install
       tags: ['gui','alacritty']
         
-    - role: makinj.sublime.install
+    - role: vmutti.sublime.install
       tags: ['gui','sublime']
     
-    - role: makinj.docker.install
+    - role: vmutti.docker.install
       tags: ['tools','infra','docker']
     
-    - role: makinj.gcloud.install
+    - role: vmutti.gcloud.install
       tags: ['tools','infra','gcloud']
     
-    - role: makinj.kubectl.install
+    - role: vmutti.kubectl.install
       tags: ['tools','infra','k8s','kubectl']
     
-    - role: makinj.kind.install
+    - role: vmutti.kind.install
       tags: ['tools','infra','k8s','kind']
     
-    - role: makinj.golang.install
+    - role: vmutti.golang.install
       tags: ['tools','development','golang']
 
-    - role: makinj.autochrome.install
+    - role: vmutti.autochrome.install
       tags: ['tools','security','web','autochrome']
 
-    - role: makinj.mitmproxy.install
+    - role: vmutti.mitmproxy.install
       tags: ['tools','security','web','mitmproxy']
 
-    # - role: makinj.kali.install
+    # - role: vmutti.kali.install
     #   tags: ['tools','security','kali']

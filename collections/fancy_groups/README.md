@@ -8,7 +8,7 @@ Inverts the normal group relationship where you can list the parents of a host/g
 Example:
 
 ```yaml
-plugin: makinj.fancy_groups.inverted_group
+plugin: vmutti.fancy_groups.inverted_group
 hosts:
   example-host:
     parents:
@@ -38,7 +38,7 @@ Takes a number of dimensions of groups and combines their names while retaining 
 
 Example:
 ```yaml
-plugin: makinj.fancy_groups.combined_groups
+plugin: vmutti.fancy_groups.combined_groups
 dimensions:
 - dev:
   prod:

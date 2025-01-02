@@ -1,5 +1,5 @@
 - name: 'Build Packer Images'
-  makinj.packer.packer_build:
+  vmutti.packer.packer_build:
     image_hosts: groups[packer_guest_group]
 
 - name: 'Show vagrant guests from {{packer_guest_group}}'
