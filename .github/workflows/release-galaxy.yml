@@ -31,8 +31,8 @@ jobs:
         ANSIBLE_GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
     - name: Push updated versions
       run: |
-        git config user.name "makinj"
-        git config user.email "41898282+makinj@users.noreply.github.com"
+        git config user.name "vmutti"
+        git config user.email "2326994+vmutti@users.noreply.github.com"
         git add .
         git commit -m "bumping versions"
         git push ||  true

@@ -2,12 +2,12 @@
   vars:
     vault_server_db_destroy_confirm: true
   roles:
-    - makinj.vault.server_db_destroy
-    - makinj.vault.server_tls_disable
+    - vmutti.vault.server_db_destroy
+    - vmutti.vault.server_tls_disable
 - hosts: vault_server
   roles:
-    - makinj.vault.server_db_create
-    - makinj.vault.server_db_unseal
-    - makinj.vault.server_db_deploy_admin_user
-    - makinj.vault.server_db_deploy_root_ca
-    - makinj.vault.server_db_deploy_int_ca
+    - vmutti.vault.server_db_create
+    - vmutti.vault.server_db_unseal
+    - vmutti.vault.server_db_deploy_admin_user
+    - vmutti.vault.server_db_deploy_root_ca
+    - vmutti.vault.server_db_deploy_int_ca

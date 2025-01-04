@@ -4,7 +4,7 @@
     VAULT_ADDR: "http://127.0.0.1:{{ vault_server_port | escape }}"
 - name: "run the podman manager"
   include_role:
-    name: "makinj.podman.server_vault_command"
+    name: "vmutti.podman.server_vault_command"
   vars:
     podman_containers_state: "{{vault_server_state}}"
     podman_guest_name: "{{vault_server_guest_name}}"

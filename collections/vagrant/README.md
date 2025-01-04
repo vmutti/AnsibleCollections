@@ -1,3 +1,3 @@
-# Ansible Collection - makinj.vagrant
+# Ansible Collection - vmutti.vagrant
 
 Documentation for the collection.

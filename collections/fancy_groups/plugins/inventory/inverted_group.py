@@ -16,7 +16,7 @@ DOCUMENTATION = '''
         plugin:
             description: Token that ensures this is a source file for the plugin.
             required: True
-            choices: ['inverted_group', 'makinj.fancy_groups.inverted_group']
+            choices: ['inverted_group', 'vmutti.fancy_groups.inverted_group']
         hosts:
             description:
                 - List of hosts, which include a list of their parent groups.
@@ -31,7 +31,7 @@ DOCUMENTATION = '''
 EXAMPLES = r'''
 # example inverted_group.yml file
 ---
-plugin: makinj.fancy_groups.inverted_group
+plugin: vmutti.fancy_groups.inverted_group
 hosts:
   example-host:
     parents:
@@ -48,7 +48,7 @@ from ansible.plugins.inventory import BaseFileInventoryPlugin
 
 class InventoryModule(BaseFileInventoryPlugin):
 
-    NAME = 'makinj.fancy_groups.inverted_group'
+    NAME = 'vmutti.fancy_groups.inverted_group'
 
     def verify_file(self, path):
       super(InventoryModule, self).verify_file(path)

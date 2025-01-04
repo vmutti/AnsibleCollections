@@ -14,7 +14,7 @@ DOCUMENTATION = '''
         plugin:
             description: Token that ensures this is a source file for the plugin.
             required: True
-            choices: ['combined_groups', 'makinj.fancy_groups.combined_groups']
+            choices: ['combined_groups', 'vmutti.fancy_groups.combined_groups']
         dimensions:
             description:
                 - list of group name segments to be combined into new groups.
@@ -25,7 +25,7 @@ DOCUMENTATION = '''
 EXAMPLES = r'''
 # example combined_groups.yml file
 ---
-plugin: makinj.fancy_groups.combined_groups
+plugin: vmutti.fancy_groups.combined_groups
 dimensions:
 - dev:
   prod:
@@ -56,7 +56,7 @@ def combine_lists(dimensions):
 
 class InventoryModule(BaseFileInventoryPlugin):
 
-    NAME = 'makinj.fancy_groups.combined_groups'
+    NAME = 'vmutti.fancy_groups.combined_groups'
 
     def verify_file(self, path):
       super(InventoryModule, self).verify_file(path)

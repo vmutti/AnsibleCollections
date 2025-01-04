@@ -1,4 +1,4 @@
 - name: Build packer images
   hosts: "vagrant_hypervisor"
   roles: 
-    - makinj.packer.build
+    - vmutti.packer.build
