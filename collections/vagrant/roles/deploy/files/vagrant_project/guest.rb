@@ -1,9 +1,10 @@
 class Guest
-  def initialize(globalvagrant, config, provider_callbacks=[], vm_callbacks=[], callbacks=[])
+  def initialize(globalvagrant, config, vb_callbacks=[], lv_callbacks=[], vm_callbacks=[], callbacks=[])
     # stow away the vagrant handle and the input guest config
     @globalvagrant = globalvagrant
     @config = config
-    @provider_callbacks = provider_callbacks
+    @vb_callbacks = vb_callbacks
+    @lv_callbacks = lv_callbacks
     @vm_callbacks = vm_callbacks
     @callbacks = callbacks
 
@@ -86,20 +87,27 @@ class Guest
       vagrant.ssh.insert_key = false
       vagrant.ssh.dsa_authentication = false
       vagrant.ssh.verify_host_key = :accept_new_or_local_tunnel
-      vagrant.vm.provider "virtualbox" do |vbox|
-        vagrant.vm.synced_folder ".", "/vagrant", disabled: true
-        vbox.check_guest_additions = false
-        vbox.name = @name.gsub(/\//,'-')
+      vagrant.vm.synced_folder ".", "/vagrant", disabled: true
+      if @config['provider']=='virtualbox'
+        vagrant.vm.provider "virtualbox" do |vbox|
+          vbox.check_guest_additions = false
+          vbox.name = @name.gsub(/\//,'-')
 
-        vbox.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
-        vbox.customize ["modifyvm", :id, "--ioapic", "on"]
-        vbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-        @provider_callbacks.each do |cb|
-          cb.call(vbox)
+          vbox.customize ["modifyvm", :id, "--clipboard-mode", "bidirectional"]
+          vbox.customize ["modifyvm", :id, "--ioapic", "on"]
+          vbox.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+          @vb_callbacks.each do |cb|
+            cb.call(vbox)
+          end
         end
-
-      end 
-      
+      elsif @config['provider']=='libvirt'
+        vagrant.vm.provider :libvirt do |libvirt|
+          libvirt.socket='/run/libvirt/libvirt-sock'
+          @lv_callbacks.each do |cb|
+            cb.call(libvirt)
+          end
+        end
+      end
       @vm_callbacks.each do |cb|
         cb.call(vagrant.vm)
       end
@@ -114,7 +122,11 @@ class Guest
   end
 
   def vb(&cb)
-    @provider_callbacks.push(cb)
+    @vb_callbacks.push(cb)
+  end
+
+  def lv(&cb)
+    @lv_callbacks.push(cb)
   end
 
   def callback(&cb)
@@ -154,13 +166,22 @@ class Guest
 
   def setup_memory(memory=4096)
     vb() do |vbox|
+      # vmox.memory = memory
       vbox.customize ["modifyvm", :id, "--memory", memory]
+    end
+    lv() do |libv|
+      libv.memory = memory
     end
   end
 
   def setup_cpus(cpus=1)
     vb() do |vbox|
+      # vbox.cpus=cpus
       vbox.customize ["modifyvm", :id, "--cpus", cpus]
+    end
+    lv() do |libv|
+      libv.cpus=cpus
+      libv.cpu_model='qemu64'
     end
   end
 
