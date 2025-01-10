@@ -1,7 +1,7 @@
 - name: "Install xfce if necessary ({{install_xfce}})"
   when: "'host_install_xfce' in group_names"
   block:
-    - name: "Installing xfce4, konsole and thunar-archive-plugin"
+    - name: "Installing xfce4 and thunar-archive-plugin"
       become: true
       apt:
         update_cache: yes
