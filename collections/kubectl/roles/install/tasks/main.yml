@@ -1,16 +1,18 @@
 - name: "Install kubectl if necessary ({{install_kubectl}})"
   when: "'host_install_kubectl' in group_names"
   block:
-    - name: Install GPG key for GCP SDK
-      become: true
-      apt_key:
+    - name: Install GPG key for K8s SDK
+      get_url:
         url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
-        state: present
+        dest: /etc/apt/keyrings/k8s.asc
+        mode: '0644'
+        force: true
+      become: true
 
     - name: Add kubernetes repositories into sources list
       become: true
       apt_repository:
-        repo: "deb https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+        repo: "deb [signed-by=/etc/apt/keyrings/k8s.asc] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
         state: present
         filename: kubernetes
 
