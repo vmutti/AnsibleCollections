@@ -34,3 +34,5 @@
     - "{{item}}"
     chdir: "{{ vagrant_work_dir }}"
   with_items: "{{ groups[vagrant_guest_group] }}"
+  tags:
+    - vagrant_start

@@ -211,16 +211,16 @@ class Guest
     end
   end
 
-  def sync_dir(src,name)
+  def sync_dir(src,name,owner,group,mode)
     require 'fileutils'
     FileUtils.mkdir_p src
     vm() do |vmach|
-      vmach.synced_folder src, "/#{name}", automount:true
+      vmach.synced_folder src, "/#{name}", automount:true, owner:owner, group:group, mount_options:['dmode='+mode,'fmode='+mode]
     end
   end
 
   def setup_workspace_dir(workspace_path)
-    sync_dir(workspace_path,"workspace")
+    sync_dir(workspace_path,"workspace",'root','vboxsf','770')
     run_inline("mount workspace","if [ ! -e  $HOME/workspace ]; then ln -f -s /media/sf_workspace $HOME/workspace;  fi")
   end
 
