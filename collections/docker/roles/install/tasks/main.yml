@@ -1,59 +1,58 @@
 - name: "Install docker if necessary ({{install_docker}})"
   when: "'host_install_docker' in group_names"
   block:
-  - name: Install packages
-    become: true
-    apt:
-      update_cache: true
-      pkg:     
-        - apt-transport-https
-        - ca-certificates
-        - gnupg-agent
-        - software-properties-common
+    - name: Install packages
+      become: true
+      apt:
+        update_cache: true
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg-agent
+          - software-properties-common
 
+    - name: Install GPG key for Docker
+      get_url:
+        url: "https://download.docker.com/linux/debian/gpg"
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+        force: true
+      become: true
 
-  - name: Install GPG key for Docker
-    get_url:
-      url: "https://download.docker.com/linux/debian/gpg"
-      dest: /etc/apt/keyrings/docker.asc
-      mode: '0644'
-      force: true
-    become: true
+    - name: Add Docker repositories into sources list
+      become: true
+      apt_repository:
+        repo: "deb [arch={{docker_architecture_name_mapping[ansible_facts.userspace_architecture]}} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{(ansible_facts.distribution_release=='kali-rolling') | ternary('bookworm', ansible_facts.distribution_release) }} stable"
+        state: present
+        filename: docker
 
-  - name: Add Docker repositories into sources list
-    become: true
-    apt_repository:
-      repo: "deb [arch={{docker_architecture_name_mapping[ansible_facts.userspace_architecture]}} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{(ansible_facts.distribution_release=='kali-rolling') | ternary('bookworm', ansible_facts.distribution_release) }} stable"
-      state: present
-      filename: docker
+    - name: Install packages
+      become: true
+      apt:
+        update_cache: true
+        state: fixed
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
 
-  - name: Install packages
-    become: true
-    apt:
-      update_cache: true
-      state: fixed
-      pkg: 
-        - docker-ce 
-        - docker-ce-cli
-        - containerd.io
+    - name: "install docker-compose for each user"
+      become: true
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-linux-{{ansible_facts.architecture}}"
+        dest: "{{docker_cli_plugins_dir}}/docker-compose"
+        mode: '0750'
+        group: docker
+        force: true
 
-  - name: "install docker-compose for each user"
-    become: true
-    get_url:
-      url: "https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-linux-{{ansible_facts.architecture}}"
-      dest: "{{docker_cli_plugins_dir}}/docker-compose"
-      mode: '0750'
-      group: docker
-      force: true
-
-  - name: "Add {{ docker_usernames }} to docker"
-    become: true
-    user:
-      name: "{{ docker_username }}"
-      append: yes
-      groups: docker
-    with_items: "{{ docker_usernames }}"
-    loop_control:
-      loop_var: docker_username
+    - name: "Add {{ docker_usernames }} to docker"
+      become: true
+      user:
+        name: "{{ docker_username }}"
+        append: yes
+        groups: docker
+      with_items: "{{ docker_usernames }}"
+      loop_control:
+        loop_var: docker_username
 
 
