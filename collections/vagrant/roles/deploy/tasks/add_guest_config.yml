@@ -19,6 +19,12 @@
   register: 
     vagrant_box_list
 
+- name: start with empty vagrant box add command
+  tags:
+    - vagrant_box_add
+  set_fact:
+    vagrant_box_add_command_args: []
+  when: item != omit
 - name: build vagrant box add command
   tags:
     - vagrant_box_add
