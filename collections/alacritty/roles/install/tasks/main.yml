@@ -5,7 +5,9 @@
       become: true
       apt:
         update_cache: true
-        pkg: alacritty
+        pkg:
+          - alacritty
+          - libxkbcommon-x11-dev
 
     - name: "Copy {{ controller_alacritty_config_dir }} for {{ alacritty_usernames }}"
       become: true

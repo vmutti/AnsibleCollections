@@ -1,0 +1,24 @@
+- name: "Install burp if necessary ({{host_install_burp}})"
+  when: "'host_install_burp' in group_names"
+  block:
+
+  - name: Create temporary directory for burp
+    tempfile:
+      state: file
+    register: burp_tmp_path
+  - name: "Download burp installer"
+    get_url:
+      url: https://portswigger-cdn.net/burp/releases/download?product=pro&version={{burp_version}}&type=Linux
+      dest: "{{burp_tmp_path.path}}"
+      mode: "0755"
+      force: true
+    become: true
+
+  - name: "Install burp for {{ burp_username }}"
+    become: true
+    command:
+      cmd: "sudo -u {{burp_username}} {{burp_tmp_path.path}} -q"
+    ignore_errors: true
+    with_items: "{{ burp_usernames }}"
+    loop_control:
+      loop_var: burp_username

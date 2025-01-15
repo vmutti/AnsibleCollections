@@ -29,6 +29,9 @@
     - role: vmutti.vim.install
       tags: ['base','vim']
     
+    - role: vmutti.wireguard.install
+      tags: ['base','wireguard']
+
     - role: vmutti.xfce.install
       tags: ['gui','xfce']
     
@@ -65,5 +68,8 @@
     - role: vmutti.mitmproxy.install
       tags: ['tools','security','web','mitmproxy']
 
-    # - role: vmutti.kali.install
-    #   tags: ['tools','security','kali']
+    - role: vmutti.burp.install
+      tags: ['tools','security','web','burp']
+
+    - role: vmutti.kali.install
+      tags: ['tools','security','kali']

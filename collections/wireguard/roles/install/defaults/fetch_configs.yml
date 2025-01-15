@@ -1,0 +1,2 @@
+wireguard_system_config_paths:
+  - /etc/wireguard/

@@ -1,0 +1,21 @@
+- name: "Install wireguard if necessary ({{install_wireguard}})"
+  when: "'host_install_wireguard' in group_names"
+  block:
+  - name: "Installing wireguard"
+    become: true
+    apt:
+      update_cache: yes
+      pkg:
+        - wireguard
+        - resolvconf
+  - name: "Copy {{ controller_wireguard_config_dir }} for {{ wireguard_username }}"
+    become: true
+    unarchive:
+      copy: true
+      src: "{{ controller_wireguard_config_dir }}/system.tar.gz"
+      dest: "/{{ wireguard_username }}"
+      owner: root
+      group: root
+    tags: configuration
+    when: "lookup('ansible.builtin.fileglob', '{{ controller_wireguard_config_dir }}/system.tar.gz') != []"
+

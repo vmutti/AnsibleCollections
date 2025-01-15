@@ -58,7 +58,7 @@ class Guest
       end
     end
 
-    if @config.has_key?("shaed_folders")
+    if @config.has_key?("shared_folders")
       @config['shared_folders'].each do |shared_folder|
         sync_dir(shared_folder['src'],shared_folder['name'])
       end
