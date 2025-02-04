@@ -1,0 +1,4 @@
+sublime_user_config_paths:
+  - {path: ".java/", recurse: false}
+  - {path: ".java/.userPrefs/", recurse: false}
+  - .java/.userPrefs/burp
