@@ -22,3 +22,15 @@
     with_items: "{{ burp_usernames }}"
     loop_control:
       loop_var: burp_username
+  - name: "Copy {{ controller_burp_config_dir }} for {{ burp_usernames }}"
+    become: true
+    unarchive:
+      copy: true
+      src: "{{ controller_burp_config_dir }}/user.tar.gz"
+      dest: "/home/{{ burp_username }}"
+      mode: "0700"
+      owner: "{{ burp_username }}"
+    with_items: "{{ burp_usernames }}"
+    loop_control:
+      loop_var: burp_username
+    tags: configuration
