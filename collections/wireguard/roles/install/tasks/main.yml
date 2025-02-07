@@ -8,12 +8,10 @@
       pkg:
         - wireguard
         - resolvconf
-  - name: "Copy {{ controller_wireguard_config_dir }} for {{ wireguard_username }}"
-    become: true
+  - name: "Copy {{ controller_wireguard_config_dir }}"
     unarchive:
       copy: true
       src: "{{ controller_wireguard_config_dir }}/system.tar.gz"
-      dest: "/{{ wireguard_username }}"
       owner: root
       group: root
     tags: configuration
