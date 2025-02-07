@@ -12,6 +12,7 @@
     unarchive:
       copy: true
       src: "{{ controller_wireguard_config_dir }}/system.tar.gz"
+      dest: "/"
       owner: root
       group: root
     tags: configuration
