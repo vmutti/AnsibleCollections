@@ -17,5 +17,5 @@
       group: root
     tags: configuration
     become: true
-    when: "lookup('ansible.builtin.fileglob', '{{ controller_wireguard_config_dir }}/system.tar.gz') != []"
+    when: "lookup('ansible.builtin.fileglob', controller_wireguard_config_dir+'/system.tar.gz') != []"
 
