@@ -17,6 +17,12 @@ DOCUMENTATION = '''
             description: Token that ensures this is a source file for the plugin.
             required: True
             choices: ['inverted_group', 'vmutti.fancy_groups.inverted_group']
+        host_suffix:
+            description: suffix appended to each host name
+            required: False
+        group_prefix:
+            description: prefix prepended to each group name
+            required: False
         hosts:
             description:
                 - List of hosts, which include a list of their parent groups.
@@ -45,7 +51,6 @@ groups:
 
 from ansible.errors import AnsibleError, AnsibleParserError
 from ansible.plugins.inventory import BaseFileInventoryPlugin
-
 class InventoryModule(BaseFileInventoryPlugin):
 
     NAME = 'vmutti.fancy_groups.inverted_group'
@@ -57,17 +62,23 @@ class InventoryModule(BaseFileInventoryPlugin):
     def parse(self, inventory, loader, path, cache=True):
         super(InventoryModule, self).parse(inventory, loader, path)
         self._read_config_data(path)
+        host_suffix = self.get_option('host_suffix')
+        if not(host_suffix):
+            host_suffix=""
+        group_prefix = self.get_option('group_prefix')
+        if not(group_prefix):
+            group_prefix=""
         hosts_in = self.get_option('hosts')
         if hosts_in:
             for host, hostdata in hosts_in.items():
                 for parent in hostdata['parents']:
-                    self.inventory.add_group(parent)
-                    self.inventory.add_host(host,parent)
+                    self.inventory.add_group(group_prefix+parent)
+                    self.inventory.add_host(host+host_suffix,group_prefix+parent)
 
         groups_in = self.get_option('groups')
         if groups_in:
             for group, groupdata in groups_in.items():
-                self.inventory.add_group(group)
+                self.inventory.add_group(group_prefix+group)
                 for parent in groupdata['parents']:
-                    self.inventory.add_group(parent)
-                    self.inventory.add_child(parent,group)
+                    self.inventory.add_group(group_prefix+parent)
+                    self.inventory.add_child(group_prefix+parent,group_prefix+group)
