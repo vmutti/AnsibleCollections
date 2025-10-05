@@ -1,4 +1,4 @@
-- name: "Install burp if necessary ({{host_install_burp}})"
+- name: "Install burp if necessary"
   when: "'host_install_burp' in group_names"
   block:
 

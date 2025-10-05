@@ -1,4 +1,4 @@
-- name: "Install sublime if necessary ({{install_sublime}})"
+- name: "Install sublime if necessary"
   when: "'host_install_sublime' in group_names"
   block:
     - name: Install GPG key for SubLimeText

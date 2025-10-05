@@ -1,4 +1,4 @@
-- name: "Install Autochrome if necessary ({{host_install_autochrome}})"
+- name: "Install Autochrome if necessary"
   when: "'host_install_autochrome' in group_names"
   block:
   - name: "Install git, ruby"

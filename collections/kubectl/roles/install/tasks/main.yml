@@ -1,4 +1,4 @@
-- name: "Install kubectl if necessary ({{install_kubectl}})"
+- name: "Install kubectl if necessary "
   when: "'host_install_kubectl' in group_names"
   block:
     - name: Install GPG key for K8s SDK

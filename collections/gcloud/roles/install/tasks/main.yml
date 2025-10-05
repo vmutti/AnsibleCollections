@@ -1,4 +1,4 @@
-- name: "Install gcloud if necessary ({{host_install_gcloud}})"
+- name: "Install gcloud if necessary"
   when: "'host_install_gcloud' in group_names"
   block:
   - name: Install GPG key for Gcloud

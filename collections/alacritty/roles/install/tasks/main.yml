@@ -1,4 +1,4 @@
-- name: "Install alacritty if necessary ({{install_alacritty}})"
+- name: "Install alacritty if necessary"
   when: "'host_install_alacritty' in group_names"
   block:
     - name: Install Alacritty packages

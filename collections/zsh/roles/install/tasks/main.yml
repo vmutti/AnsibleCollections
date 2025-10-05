@@ -1,4 +1,4 @@
-- name: "Install zsh if necessary ({{install_zsh}})"
+- name: "Install zsh if necessary"
   when: "'host_install_zsh' in group_names"
   block:
   - name: "Installing git, zsh"

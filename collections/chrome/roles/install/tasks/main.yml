@@ -1,4 +1,4 @@
-- name: "Install chrome if necessary ({{install_chrome}})"
+- name: "Install chrome if necessary"
   when: "'host_install_chrome' in group_names"
   block:
     - name: Install chrome

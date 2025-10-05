@@ -1,4 +1,4 @@
-- name: "Install xfce if necessary ({{install_xfce}})"
+- name: "Install xfce if necessary"
   when: "'host_install_xfce' in group_names"
   block:
     - name: "Installing xfce4 and thunar-archive-plugin"

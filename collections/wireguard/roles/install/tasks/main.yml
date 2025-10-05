@@ -1,4 +1,4 @@
-- name: "Install wireguard if necessary ({{install_wireguard}})"
+- name: "Install wireguard if necessary"
   when: "'host_install_wireguard' in group_names"
   block:
   - name: "Installing wireguard"

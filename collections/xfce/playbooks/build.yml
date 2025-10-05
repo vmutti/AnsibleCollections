@@ -1,3 +1,0 @@
-- name: Fetch XFCE configs
-  roles: 
-    - vmutti.xfce.fetch

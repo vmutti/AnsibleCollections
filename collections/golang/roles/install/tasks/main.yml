@@ -1,4 +1,4 @@
-- name: "Install golang if necessary ({{install_golang}})"
+- name: "Install golang if necessary"
   when: "'host_install_golang' in group_names"
   block:
     - name: "Download golang binaries"

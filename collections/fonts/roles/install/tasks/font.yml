@@ -1,4 +1,4 @@
-- name: "Install fonts if necessary ({{install_fonts}})"
+- name: "Install font if necessary"
   when: "'host_install_fonts' in group_names"
   block:
     - name: Create temporary font download file

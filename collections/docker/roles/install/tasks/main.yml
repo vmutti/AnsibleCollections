@@ -1,4 +1,4 @@
-- name: "Install docker if necessary ({{install_docker}})"
+- name: "Install docker if necessary"
   when: "'host_install_docker' in group_names"
   block:
     - name: Install packages
