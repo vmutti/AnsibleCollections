@@ -1,4 +1,4 @@
-- name: "Install Virtualbox guest additions if necessary ({{host_install_virtualbox_guest}})"
+- name: "Install Virtualbox guest additions if necessary"
   when: "'host_install_virtualbox_guest' in group_names"
   block:
     - name: "Installing dependencies for guest additions"
