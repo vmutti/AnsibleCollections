@@ -1,4 +1,4 @@
-- name: "Include role to update fetch configuration for {{fetch_service_config.name}}"
+- name: "Include roles to provision Worchestation host"
   tags:
     - always
   include_role:
