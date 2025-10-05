@@ -13,7 +13,7 @@
         dest: "{{font_temp_file.path}}"
         force: true
 
-    - name: "Create '/home/{{ font_username }}/.fonts/'' directory if it does not exist"
+    - name: "Create '~/.fonts/'' directories if they do not exist"
       become: true
       file:
         path: "/home/{{ font_username }}/.fonts/"
