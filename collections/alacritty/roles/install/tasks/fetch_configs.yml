@@ -1,4 +1,3 @@
-
 - name: "Add alacritty paths to list"
   set_fact:
     fetch_service_config: "{{ fetch_service_config | combine({item.key: (fetch_service_config[item.key] | default([]) | union(item.value))}) }}"
