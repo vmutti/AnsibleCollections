@@ -14,7 +14,7 @@
       force: true
     become: true
 
-  - name: "Install burp for {{ burp_username }}"
+  - name: "Install burp for {{ burp_usernames }}"
     become: true
     command:
       cmd: "sudo -u {{burp_username}} {{burp_tmp_path.path}} -q"

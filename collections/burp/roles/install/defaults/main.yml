@@ -1,2 +1,3 @@
 burp_version: 2024.11.2
 controller_burp_config_dir: "{{ controller_tools_config_dir }}/burp"
+burp_usernames: []

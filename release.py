@@ -56,11 +56,18 @@ for collection in target_collections:
     )
     verify_output=verify_results.stdout.decode()
     verify_errors=verify_results.stderr.decode()
-    modified_message = 'contains modified content in the following files'
+    modified_message = 'contains modified content in the following files:\n'
     modified = modified_message in verify_output
+    if modified:
+        modified_files = [ a.strip() for a in verify_output[verify_output.find(modified_message)+len(modified_message):-1].split('\n')]
+        print(verify_output)
+        print(modified_files)
+        if len(modified_files)==2 and 'FILES.json' in modified_files and 'MANIFEST.json' in modified_files:
+            modified=False
     missing_message = 'HTTP Code: 404, Message: Not found.'
     missing=verify_results.returncode==1 and missing_message in verify_errors
     collection_path = './collections/'+collection.split('.')[1] 
+    print(collection,modified,missing)
     if modified:
         galaxy_file_path = collection_path+'/galaxy.yml'
         with open(galaxy_file_path,'r+') as galaxy_file:
