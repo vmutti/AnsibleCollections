@@ -20,6 +20,7 @@ Role Variables
 
 `controller_alacritty_config_dir` or `controller_tools_config_dir`: Either the directory on the controller holding the alacritty user configuration or the controller directory that has an `alacritty` subdirectory containing these configurations respectively.
 
+`alacritty_usernames`: list of usernames to configure with backed up alacritty configuratations
 
 Dependencies
 ------------
@@ -32,8 +33,17 @@ Example Playbook
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
     - hosts: host_install_alacritty
+      vars:
+        controller_tools_config_dir: '~/worchestation_configs/'
+        alacritty_usernames:
+        - ansible
       roles:
-         - { role: vmutti.alacritty.install, controller_tools_config_dir: '~/worchestation_configs/ }
+         - role: vmutti.alacritty.install
+
+
+           
+
+
 
 License
 -------
