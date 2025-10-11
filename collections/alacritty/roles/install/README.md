@@ -1,7 +1,7 @@
 vmutti.alacritty.install
 =========
 
-Installs (Alacritty)[https://github.com/alacritty/alacritty] and configures it. Also provides a list of files to fetch when backing up configurations using `vmutti.configs.fetch`.
+Installs [Alacritty](https://github.com/alacritty/alacritty) and configures it. Also provides a list of files to fetch when backing up configurations using `vmutti.configs.fetch`.
  
 
 Requirements
@@ -42,4 +42,4 @@ MIT
 Author Information
 ------------------
 
-(Website)[https://blog.vmutti.com]
+[Website](https://blog.vmutti.com)
