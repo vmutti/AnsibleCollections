@@ -14,8 +14,9 @@ Role Variables
 --------------
 
 `alacritty_user_config_paths`:See `vmutti.config.fetch` for details on the format of this variable. It represents the files in the user's home directory to fetch when backing up configurations. This is set automatically to the following value that works for the author's configuration:
-  - {path: ".config/", recurse: false}
-  - .config/alacritty
+
+      - {path: ".config/", recurse: false}
+      - .config/alacritty
 
 `controller_alacritty_config_dir` or `controller_tools_config_dir`: Either the directory on the controller holding the alacritty user configuration or the controller directory that has an `alacritty` subdirectory containing these configurations respectively.
 
@@ -30,9 +31,9 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
+    - hosts: host_install_alacritty
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: vmutti.alacritty.install, controller_tools_config_dir: '~/worchestation_configs/ }
 
 License
 -------
