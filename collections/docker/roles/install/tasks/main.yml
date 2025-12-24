@@ -9,7 +9,6 @@
           - apt-transport-https
           - ca-certificates
           - gnupg-agent
-          - software-properties-common
 
     - name: Install GPG key for Docker
       get_url:
