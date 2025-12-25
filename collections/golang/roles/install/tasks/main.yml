@@ -6,7 +6,6 @@
         src: https://go.dev/dl/go{{golang_version}}.{{ansible_system | lower}}-{{golang_architecture_name_mapping[ansible_facts.userspace_architecture]}}.tar.gz
         dest: "{{golang_install_dir}}"
         remote_src: true
-        force: true
       become: true
     - name: "Update PATH for golang users"
       lineinfile:
