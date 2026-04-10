@@ -3,7 +3,7 @@
   block:
     - name: Install GPG key for K8s SDK
       get_url:
-        url: https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key
+        url: https://pkgs.k8s.io/core:/stable:/{{kubectl_version}}/deb/Release.key
         dest: /etc/apt/keyrings/k8s.asc
         mode: '0644'
         force: true
