@@ -4,7 +4,7 @@
     - name: Install kali keyring
       become: true
       apt:
-        deb: https://http.kali.org/pool/main/k/kali-archive-keyring/kali-archive-keyring_2025.1_all.deb
+        deb: https://http.kali.org/pool/main/k/kali-archive-keyring/kali-archive-keyring_{{kali_version}}_all.deb
 
     - name: Add kali repositories into sources list
       become: true

@@ -1,3 +1,6 @@
+
+kali_version: 2026.1
+
 kali_packages: []
   # - beef-xss
   # - binwalk
