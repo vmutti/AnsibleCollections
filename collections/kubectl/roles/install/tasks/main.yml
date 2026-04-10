@@ -12,7 +12,7 @@
     - name: Add kubernetes repositories into sources list
       become: true
       apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/k8s.asc] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+        repo: "deb [signed-by=/etc/apt/keyrings/k8s.asc] https://pkgs.k8s.io/core:/stable:/{{kubectl_version}}/deb/ /"
         state: present
         filename: kubernetes
 
