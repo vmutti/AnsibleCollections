@@ -1,4 +1,4 @@
 - name: Backup configurations for services
-  hosts: "!not_running"
+  hosts: "{{target_hosts|default('all')}}:&worchestation:&!not_running"
   roles: 
     - vmutti.configs.fetch
