@@ -4,7 +4,7 @@ DOCUMENTATION = '''
     name: combined_groups Inventory
     plugin_type: inventory
     author:
-      - Joshua Makinen (@joshuamakinen)
+      - Shoshana Makinen (@Shoshanamakinen)
     short_description: Takes a list of dimensions of group name segments and generates groups by combining them. Group name segments with children and parent relationships will have those factored into the combinations.
     description:
         - "n/a"

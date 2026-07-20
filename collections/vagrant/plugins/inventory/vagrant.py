@@ -6,7 +6,7 @@ DOCUMENTATION = '''
     name: Vagrant Inventory
     plugin_type: inventory
     author:
-      - Joshua Makinen (@joshuamakinen)
+      - Shoshana Makinen (@Shoshanamakinen)
     short_description: Dynamic inventory plugin for Vagrant machines.
     description:
         - Calls into vagrant to fetch information on where to find different guests

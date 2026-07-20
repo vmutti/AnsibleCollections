@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Joshua Makinen
+  author: Shoshana Makinen
   description: Installs [Alacritty](https://github.com/alacritty/alacritty) and configures it. Also provides list of files to fetch to backup configurations using `vmutti.configs.fetch`.
 
   license: MIT

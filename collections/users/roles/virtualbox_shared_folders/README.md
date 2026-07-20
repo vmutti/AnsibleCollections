@@ -1,31 +1,35 @@
-Role Name
-=========
+vmutti.users.virtualbox_shared_folders
+======================================
 
-A brief description of the role goes here.
+Adds each username in `virtualbox_sf_usernames` to the `vboxsf` group so they can access VirtualBox shared folders, when `host_setup_virtualbox_users` is true.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+VirtualBox Guest Additions must already be installed (see `vmutti.virtualbox_guest.install`) so the `vboxsf` group exists.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`host_setup_virtualbox_users`: boolean. Must be true for group membership to be applied (see `vmutti.users.common`).
+
+`virtualbox_sf_usernames`: list of usernames to add to the `vboxsf` group.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: all
+      vars:
+        host_setup_virtualbox_users: true
+        virtualbox_sf_usernames:
+          - ansible
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.users.virtualbox_shared_folders
 
 License
 -------
@@ -35,4 +39,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

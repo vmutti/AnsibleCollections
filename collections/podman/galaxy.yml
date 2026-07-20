@@ -16,12 +16,12 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- Joshua Makinen <makinj64@gmail.com>
+- Shoshana Makinen <makinj64@gmail.com>
 
 
 ### OPTIONAL but strongly recommended
 # A short summary description of the collection
-description: Roles for running updates
+description: Manages Podman containers for hosts in a target inventory group using containers.podman
 
 # Either a single license or a list of licenses for content inside of a collection. Ansible Galaxy currently only
 # accepts L(SPDX,https://spdx.org/licenses/) licenses. This key is mutually exclusive with 'license_file'

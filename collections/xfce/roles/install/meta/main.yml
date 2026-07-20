@@ -1,11 +1,12 @@
 ---
 galaxy_info:
-  author: Joshua Makinen
-  description: TKTK
+  author: Shoshana Makinen
+  description: Installs xfce4 and thunar-archive-plugin, restoring system- and user-level configuration
 
   license: MIT
 
   min_ansible_version: 2.1
+
   galaxy_tags: []
 
 dependencies: []

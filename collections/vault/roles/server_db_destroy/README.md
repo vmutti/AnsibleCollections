@@ -1,31 +1,36 @@
-Role Name
-=========
+vmutti.vault.server_db_destroy
+==============================
 
-A brief description of the role goes here.
+Stops the Vault server (via the role named in `vault_server_manage_role`), then, if explicitly confirmed, permanently deletes the Vault storage directory. This is a destructive operation gated behind an explicit confirmation flag.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None beyond a stoppable Vault server. Deletion only happens when `vault_server_db_destroy_confirm` is `true`.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`vault_server_db_destroy_confirm`: boolean, default `false`. Must be explicitly set to `true` to actually delete the storage directory.
+
+`vault_server_manage_role`: fully-qualified role name used to stop the Vault server (e.g. `vmutti.vault.podman_server_manage`).
+
+`vault_hypervisor_storage_path`: path to the Vault storage directory to delete.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: vault_hypervisor
+      vars:
+        vault_server_manage_role: vmutti.vault.podman_server_manage
+        vault_server_db_destroy_confirm: true
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.vault.server_db_destroy
 
 License
 -------
@@ -35,4 +40,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

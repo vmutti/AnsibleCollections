@@ -1,31 +1,29 @@
-Role Name
-=========
+vmutti.worchestation.provision
+==============================
 
-A brief description of the role goes here.
+Meta-role that includes ~20 other `vmutti.*` roles (updates, VirtualBox guest additions, human user setup, zsh/tmux/vim/wireguard, XFCE/fonts/chrome/alacritty/sublime, docker/gcloud/kubectl/kind, golang, and security tools like autochrome/mitmproxy/burp/kali) behind tags such as `base`, `gui`, `tools`, and `virtualbox_guest`, so a host's group membership decides which subset actually runs.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Each included role has its own requirements (see that role's README). Typically driven by inventory groups named `host_install_$TOOL`.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+No variables of its own beyond `--tags`/`--skip-tags` selection; see the individual included roles for their variables.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+vmutti.updates, vmutti.virtualbox_guest, vmutti.users, vmutti.zsh, vmutti.tmux, vmutti.vim, vmutti.wireguard, vmutti.xfce, vmutti.fonts, vmutti.chrome, vmutti.alacritty, vmutti.sublime, vmutti.docker, vmutti.gcloud, vmutti.kubectl, vmutti.kind, vmutti.golang, vmutti.autochrome, vmutti.mitmproxy, vmutti.burp, vmutti.kali
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: worchestation
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.worchestation.provision
 
 License
 -------
@@ -35,4 +33,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

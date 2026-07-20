@@ -1,18 +1,23 @@
-# Worchestation
+# vmutti.worchestation
 
-Worchestation(Pronounced Wuss-station) is a tool that I use to orchestrate my personal workstations.
-It essentially just bundles a bunch of my roles that install and configure my workstation repeatably.
-This way I can use my inventory to specify that my machine running WSL is a headless workstation and have all of my terminal and development tools installed without the gui apps.  Then I can do a full install of the tools I need for a particular project in its VM. 
-I also have tools for managing these configurations once you tweak them and for setting up these VMs based on hosts configured in the Inventory
+Worchestation (pronounced "Wuss-station") is a tool used to orchestrate personal workstations. It bundles a curated set of `vmutti.*` roles — base shell/editor/terminal tools, a GUI desktop environment, and development/security tooling — behind Ansible tags, so a host's inventory group membership (`host_install_$TOOL` groups) determines which tool set it receives. This lets a headless WSL host get just the terminal/dev tools while a full VM gets the GUI apps too.
+
+## Roles
+
+- [provision](roles/provision/README.md) — includes the full set of vmutti.* roles behind tags to provision a workstation
 
 ## Building a disk image
 
-You can use an existing box or use my [build scripts](https://github.com/vmutti/PackerImages) to make your own with Worchestation already applied.
+Use an existing box, or use the [PackerImages](https://github.com/vmutti/PackerImages) build scripts to make your own with Worchestation already applied.
 
 ## Setting up a VM
 
-Use the configuration instructions at [vmutti.vagrant](https://galaxy.ansible.com/ui/repo/published/vmutti/vagrant/) to configure your inventory and then use `vmutti.worchestation.deploy` to deploy the vagrant machines and provision them.
+Use the configuration instructions at [vmutti.vagrant](https://galaxy.ansible.com/ui/repo/published/vmutti/vagrant/) to configure your inventory, then use `vmutti.vagrant.deploy` to deploy and provision the Vagrant machines.
 
 ## Provisioning
 
-Configure your inventory with groups named `host_install_$TOOL` where `$TOOL` is the tool that you intend to install. Ensure that any of the roles that worchestation depends on have the proper variables set.
+Configure your inventory with groups named `host_install_$TOOL` for each tool you want installed. Ensure any variables required by the roles Worchestation depends on are set.
+
+## License
+
+MIT

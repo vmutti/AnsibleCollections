@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Shoshana Makinen
+  description: Unseals the Vault server using known unseal keys, prompting interactively if none are known
+
+  license: MIT
+
+  min_ansible_version: 2.1
+
+  galaxy_tags: []
+
+dependencies: []

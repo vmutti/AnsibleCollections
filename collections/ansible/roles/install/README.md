@@ -1,31 +1,31 @@
-Role Name
-=========
+vmutti.ansible.install
+======================
 
-A brief description of the role goes here.
+Installs the `ansible` Python package via `pip` so the target host can itself run Ansible (for example, a workstation that needs to manage other hosts).
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None beyond a working `pip` on the target host.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`host_install_ansible`: boolean. When true, installs the `ansible` pip package.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: host_install_ansible
+      vars:
+        host_install_ansible: true
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.ansible.install
 
 License
 -------
@@ -35,4 +35,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

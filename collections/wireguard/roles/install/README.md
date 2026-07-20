@@ -1,31 +1,31 @@
-Role Name
-=========
+vmutti.wireguard.install
+========================
 
-A brief description of the role goes here.
+Installs the `wireguard` and `resolvconf` packages, and if a backed-up `system.tar.gz` exists under `controller_wireguard_config_dir`, extracts it to `/` to restore WireGuard's system configuration. Also exposes a `fetch_configs.yml` hook so `vmutti.configs.fetch` can back up this configuration.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Debian-based distro with apt. The target host must be a member of the `host_install_wireguard` group.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`controller_wireguard_config_dir` or `controller_tools_config_dir`: directory on the controller holding the backed-up WireGuard system configuration.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: host_install_wireguard
+      vars:
+        controller_tools_config_dir: '~/worchestation_configs/'
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.wireguard.install
 
 License
 -------
@@ -35,4 +35,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

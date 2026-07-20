@@ -1,31 +1,35 @@
-Role Name
-=========
+vmutti.users.humans
+===================
 
-A brief description of the role goes here.
+Creates a local user account (with a home directory and `sudo` group membership) for each username in `human_usernames`, when `host_setup_human_users` is true.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`host_setup_human_users`: boolean. Must be true for accounts to be created (see `vmutti.users.common`).
+
+`human_usernames`: list of usernames to create as local sudo-capable accounts.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: all
+      vars:
+        host_setup_human_users: true
+        human_usernames:
+          - ansible
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.users.humans
 
 License
 -------
@@ -35,4 +39,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

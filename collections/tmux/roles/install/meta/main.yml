@@ -1,7 +1,7 @@
 ---
 galaxy_info:
-  author: Joshua Makinen
-  description: TKTK
+  author: Shoshana Makinen
+  description: Installs tmux and restores per-user configuration for each user in tmux_usernames
 
   license: MIT
 

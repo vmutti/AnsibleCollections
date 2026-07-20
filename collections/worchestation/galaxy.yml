@@ -6,9 +6,9 @@ version: 1.0.7
 readme: README.md
 
 authors:
-- Joshua Makinen <makinj64@gmail.com>
+- Shoshana Makinen <makinj64@gmail.com>
 
-description: your collection description
+description: Meta-role that provisions a personal workstation by including a curated set of vmutti.* roles behind Ansible tags
 
 license:
 - MIT

@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Shoshana Makinen
+  description: Runs an arbitrary vault CLI command against a given Vault address using a given token
+
+  license: MIT
+
+  min_ansible_version: 2.1
+
+  galaxy_tags: []
+
+dependencies: []

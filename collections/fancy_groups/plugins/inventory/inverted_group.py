@@ -6,7 +6,7 @@ DOCUMENTATION = '''
     name: inverted_group Inventory
     plugin_type: inventory
     author:
-      - Joshua Makinen (@joshuamakinen)
+      - Shoshana Makinen (@Shoshanamakinen)
     short_description: Inverts the normal Ansible inventory group relationship to list the parents of a host/group instead of listing the group's children.
     description:
         - "n/a"

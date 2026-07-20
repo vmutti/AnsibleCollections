@@ -1,31 +1,40 @@
-Role Name
-=========
+vmutti.vagrant.deploy
+=====================
 
-A brief description of the role goes here.
+Copies the bundled `vagrant_project/` files to `vagrant_work_dir`, builds a `guests.json` describing every host in `vagrant_guest_group` (via `add_guest_config.yml`), and runs `vagrant up` for each guest.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+`vagrant` (and `packer`, if guests are built from Packer boxes) must be installed on the hypervisor host. Run on a host acting as a Vagrant hypervisor.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`vagrant_binary_path`: path to the `vagrant` binary, default `/usr/bin/vagrant`.
+
+`packer_binary_path`: path to the `packer` binary, default `/usr/bin/packer`.
+
+`force_imports`: boolean, default `false`.
+
+`vagrant_work_dir`: directory to write the generated Vagrant project into.
+
+`vagrant_guest_group`: inventory group of hosts to generate Vagrant guest definitions for.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: vagrant_hypervisor
+      vars:
+        vagrant_work_dir: /home/ansible/vagrant
+        vagrant_guest_group: vagrant_guest
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.vagrant.deploy
 
 License
 -------
@@ -35,4 +44,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

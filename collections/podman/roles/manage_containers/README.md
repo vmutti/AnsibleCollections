@@ -1,31 +1,35 @@
-Role Name
-=========
+vmutti.podman.manage_containers
+===============================
 
-A brief description of the role goes here.
+For each host in the target guest group, manages a Podman container using that host's `podman_image`, `podman_command`, `podman_volumes`, `podman_env`, `podman_cap_add`, and related `podman_*` host variables via the `containers.podman.podman_container` module. Optionally installs a Python interpreter into Alpine-based containers so Ansible can manage them directly.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+The `containers.podman` collection must be installed on the controller/target. Podman must be installed on the host running the containers.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`podman_guest_group` / `vagrant_guest_group`: inventory group whose hosts' `podman_*` variables describe the containers to manage.
+
+`podman_containers_state`: desired state passed to `podman_container` (e.g. `started`, `stopped`, `absent`).
+
+Per-guest host variables: `podman_image`, `podman_command`, `podman_volumes`, `podman_env`, `podman_cap_add`, `podman_hostuser`, `podman_userns`, `podman_uidmap`, `podman_gidmap`, `podman_alpine_python_install`.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+containers.podman
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: podman_hypervisor
+      vars:
+        podman_guest_group: my_podman_guests
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.podman.manage_containers
 
 License
 -------
@@ -35,4 +39,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

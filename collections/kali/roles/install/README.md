@@ -1,31 +1,36 @@
-Role Name
-=========
+vmutti.kali.install
+===================
 
-A brief description of the role goes here.
+Installs the Kali archive keyring, adds the Kali apt repository (`kali-last-snapshot`), and installs the packages listed in `kali_packages` (e.g. `nmap`, `burpsuite`, `metasploit-framework`, `wireshark`).
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Debian-based distro with apt. The target host must be a member of the `host_install_kali` group.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`kali_version`: Kali release used to fetch the archive-keyring package, default `2025.2`.
+
+`kali_packages`: list of Kali packages to install. Empty by default.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+N/A
 
 Example Playbook
-----------------
+-----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
+    - hosts: host_install_kali
+      vars:
+        kali_packages:
+          - nmap
+          - burpsuite
+          - wireshark
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: vmutti.kali.install
 
 License
 -------
@@ -35,4 +40,4 @@ MIT
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Shoshana Makinen, [blog.vmutti.com](https://blog.vmutti.com)

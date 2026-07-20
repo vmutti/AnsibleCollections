@@ -40,9 +40,29 @@ collections_results = subprocess.run(
 collections = json.loads(collections_results.stdout)
 target_collections = collections[collections_dir+'/ansible_collections'].keys()
 
+before_sha = os.environ.get('RELEASE_BEFORE_SHA', '')
+after_sha = os.environ.get('RELEASE_AFTER_SHA', 'HEAD')
+
+changed_dirs = None
+if before_sha and set(before_sha) != {'0'}:
+    diff_results = subprocess.run(
+        ['git', 'diff', '--name-only', before_sha, after_sha, '--', 'collections/'],
+        capture_output=True
+    )
+    diff_output = diff_results.stdout.decode()
+    changed_dirs = {
+        line.split('/')[1] for line in diff_output.splitlines() if line.startswith('collections/')
+    }
+    header('Changed collection dirs: '+', '.join(sorted(changed_dirs)) if changed_dirs else 'Changed collection dirs: none','*')
+else:
+    header('No before SHA available, treating all collections as changed','*')
+
 
 for collection in target_collections:
     header(collection,'#')
+    collection_dir = collection.split('.')[1]
+    changed = changed_dirs is None or collection_dir in changed_dirs
+
     verify_results = subprocess.run(
         [
             'ansible-galaxy',
@@ -54,19 +74,11 @@ for collection in target_collections:
         ],
         capture_output=True
     )
-    verify_output=verify_results.stdout.decode()
     verify_errors=verify_results.stderr.decode()
-    modified_message = 'contains modified content in the following files:\n'
-    modified = modified_message in verify_output
-    if modified:
-        modified_files = [ a.strip() for a in verify_output[verify_output.find(modified_message)+len(modified_message):-1].split('\n')]
-        print(verify_output)
-        print(modified_files)
-        if len(modified_files)==2 and 'FILES.json' in modified_files and 'MANIFEST.json' in modified_files:
-            modified=False
     missing_message = 'HTTP Code: 404, Message: Not found.'
     missing=verify_results.returncode==1 and missing_message in verify_errors
-    collection_path = './collections/'+collection.split('.')[1] 
+    modified = changed
+    collection_path = './collections/'+collection_dir
     print(collection,modified,missing)
     if modified:
         galaxy_file_path = collection_path+'/galaxy.yml'
@@ -77,7 +89,6 @@ for collection in target_collections:
             new_version = '.'.join(
                version_parts[:2]+[str(int(version_parts[2])+1)]
             )
-            print(verify_output)
             header('Bumping '+collection+' version '+old_version+' => '+new_version,'*')
 
             galaxy_file.seek(0)
