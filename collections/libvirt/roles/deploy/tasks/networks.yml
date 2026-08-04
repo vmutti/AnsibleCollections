@@ -1,0 +1,39 @@
+- name: "Find libvirt network variables on {{ inventory_hostname }}"
+  set_fact:
+    libvirt_net_definitions: "{{ dict(hostvars[inventory_hostname]) | dict2items | selectattr('key', 'match', '^libvirt_net_.*$') | map(attribute='value') | list }}"
+
+- name: Show libvirt network definitions
+  debug:
+    var: libvirt_net_definitions
+    verbosity: 2
+
+- name: Define libvirt networks
+  community.libvirt.virt_net:
+    uri: "{{ libvirt_uri }}"
+    command: define
+    name: "{{ libvirt_net.name }}"
+    xml: "{{ lookup('template', 'network.xml.j2') }}"
+  loop: "{{ libvirt_net_definitions }}"
+  loop_control:
+    loop_var: libvirt_net
+    label: "{{ libvirt_net.name }}"
+
+- name: Set libvirt network autostart
+  community.libvirt.virt_net:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_net.name }}"
+    autostart: "{{ (libvirt_net.autostart | default(true)) | bool }}"
+  loop: "{{ libvirt_net_definitions }}"
+  loop_control:
+    loop_var: libvirt_net
+    label: "{{ libvirt_net.name }}"
+
+- name: Ensure libvirt networks are active
+  community.libvirt.virt_net:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_net.name }}"
+    state: active
+  loop: "{{ libvirt_net_definitions }}"
+  loop_control:
+    loop_var: libvirt_net
+    label: "{{ libvirt_net.name }}"

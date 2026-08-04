@@ -1,0 +1,27 @@
+<network>
+  <name>{{ libvirt_net.name }}</name>
+{% if libvirt_net.uuid is defined %}
+  <uuid>{{ libvirt_net.uuid }}</uuid>
+{% endif %}
+{% if libvirt_net.forward_mode is defined %}
+  <forward mode="{{ libvirt_net.forward_mode }}"/>
+{% endif %}
+{% if libvirt_net.bridge_name is defined %}
+  <bridge name="{{ libvirt_net.bridge_name }}" stp="{{ libvirt_net.stp | default('on') }}" delay="{{ libvirt_net.delay | default('0') }}"/>
+{% endif %}
+{% if libvirt_net.domain_name is defined %}
+  <domain name="{{ libvirt_net.domain_name }}"/>
+{% endif %}
+{% if libvirt_net.ip is defined %}
+  <ip address="{{ libvirt_net.ip.address }}" netmask="{{ libvirt_net.ip.netmask }}">
+{% if libvirt_net.ip.dhcp_range is defined %}
+    <dhcp>
+      <range start="{{ libvirt_net.ip.dhcp_range.start }}" end="{{ libvirt_net.ip.dhcp_range.end }}"/>
+{% for dhcp_host in libvirt_net.ip.dhcp_hosts | default([]) %}
+      <host mac="{{ dhcp_host.mac }}" name="{{ dhcp_host.name }}" ip="{{ dhcp_host.ip }}"/>
+{% endfor %}
+    </dhcp>
+{% endif %}
+  </ip>
+{% endif %}
+</network>

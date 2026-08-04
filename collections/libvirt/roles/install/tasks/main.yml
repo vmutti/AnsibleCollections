@@ -1,0 +1,27 @@
+- name: "Install libvirt if necessary"
+  when: "'host_install_libvirt' in group_names"
+  block:
+    - name: Install packages
+      become: true
+      apt:
+        update_cache: true
+        pkg: "{{ libvirt_packages }}"
+
+    - name: Enable and start libvirtd
+      become: true
+      systemd:
+        name: libvirtd
+        enabled: true
+        state: started
+
+    - name: "Add {{ libvirt_username }} to libvirt/kvm groups"
+      become: true
+      user:
+        name: "{{ libvirt_username }}"
+        append: yes
+        groups:
+          - libvirt
+          - kvm
+      with_items: "{{ libvirt_usernames }}"
+      loop_control:
+        loop_var: libvirt_username

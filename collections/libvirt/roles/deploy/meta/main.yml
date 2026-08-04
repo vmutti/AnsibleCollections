@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Shoshana Makinen
+  description: Deploys libvirt storage pools, networks, and guest domains from inventory using community.libvirt
+
+  license: MIT
+
+  min_ansible_version: 2.1
+
+  galaxy_tags: []
+
+dependencies: []

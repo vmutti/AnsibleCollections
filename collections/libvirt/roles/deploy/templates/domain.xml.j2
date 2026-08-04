@@ -1,0 +1,54 @@
+<domain type="kvm">
+  <name>{{ libvirt_guest.name }}</name>
+{% if libvirt_guest.uuid is defined %}
+  <uuid>{{ libvirt_guest.uuid }}</uuid>
+{% endif %}
+  <memory unit="MiB">{{ libvirt_guest.memory_mb | default(1024) }}</memory>
+  <currentMemory unit="MiB">{{ libvirt_guest.memory_mb | default(1024) }}</currentMemory>
+  <vcpu placement="static">{{ libvirt_guest.vcpus | default(1) }}</vcpu>
+  <os>
+    <type arch="{{ libvirt_guest.arch | default('x86_64') }}" machine="{{ libvirt_guest.machine | default('pc') }}">hvm</type>
+    <boot dev="{{ libvirt_guest.boot_dev | default('hd') }}"/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <cpu mode="host-model"/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+{% if libvirt_guest.disk_path is defined %}
+    <disk type="file" device="disk">
+      <driver name="qemu" type="{{ libvirt_guest.disk_format | default('qcow2') }}"/>
+      <source file="{{ libvirt_guest.disk_path }}"/>
+      <target dev="vda" bus="{{ libvirt_guest.disk_bus | default('virtio') }}"/>
+    </disk>
+{% endif %}
+{% if libvirt_guest.cdrom_path is defined %}
+    <disk type="file" device="cdrom">
+      <driver name="qemu" type="raw"/>
+      <source file="{{ libvirt_guest.cdrom_path }}"/>
+      <target dev="sda" bus="sata"/>
+      <readonly/>
+    </disk>
+{% endif %}
+    <interface type="network">
+      <source network="{{ libvirt_guest.network | default('default') }}"/>
+{% if libvirt_guest.mac is defined %}
+      <mac address="{{ libvirt_guest.mac }}"/>
+{% endif %}
+      <model type="{{ libvirt_guest.nic_model | default('virtio') }}"/>
+    </interface>
+    <console type="pty">
+      <target type="serial" port="0"/>
+    </console>
+    <graphics type="{{ libvirt_guest.graphics_type | default('vnc') }}" autoport="yes">
+      <listen type="address" address="{{ libvirt_guest.graphics_listen | default('0.0.0.0') }}"/>
+    </graphics>
+    <video>
+      <model type="{{ libvirt_guest.video_model | default('qxl') }}"/>
+    </video>
+  </devices>
+</domain>

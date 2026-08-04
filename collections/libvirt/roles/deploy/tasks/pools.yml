@@ -1,0 +1,50 @@
+- name: "Find libvirt pool variables on {{ inventory_hostname }}"
+  set_fact:
+    libvirt_pool_definitions: "{{ dict(hostvars[inventory_hostname]) | dict2items | selectattr('key', 'match', '^libvirt_pool_.*$') | map(attribute='value') | list }}"
+
+- name: Show libvirt pool definitions
+  debug:
+    var: libvirt_pool_definitions
+    verbosity: 2
+
+- name: Define libvirt storage pools
+  community.libvirt.virt_pool:
+    uri: "{{ libvirt_uri }}"
+    command: define
+    name: "{{ libvirt_pool.name }}"
+    xml: "{{ lookup('template', 'pool.xml.j2') }}"
+  loop: "{{ libvirt_pool_definitions }}"
+  loop_control:
+    loop_var: libvirt_pool
+    label: "{{ libvirt_pool.name }}"
+
+- name: Build libvirt storage pools
+  community.libvirt.virt_pool:
+    uri: "{{ libvirt_uri }}"
+    command: build
+    name: "{{ libvirt_pool.name }}"
+  loop: "{{ libvirt_pool_definitions }}"
+  loop_control:
+    loop_var: libvirt_pool
+    label: "{{ libvirt_pool.name }}"
+  when: (libvirt_pool.build | default(true)) | bool
+
+- name: Set libvirt storage pool autostart
+  community.libvirt.virt_pool:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_pool.name }}"
+    autostart: "{{ (libvirt_pool.autostart | default(true)) | bool }}"
+  loop: "{{ libvirt_pool_definitions }}"
+  loop_control:
+    loop_var: libvirt_pool
+    label: "{{ libvirt_pool.name }}"
+
+- name: Ensure libvirt storage pools are active
+  community.libvirt.virt_pool:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_pool.name }}"
+    state: active
+  loop: "{{ libvirt_pool_definitions }}"
+  loop_control:
+    loop_var: libvirt_pool
+    label: "{{ libvirt_pool.name }}"

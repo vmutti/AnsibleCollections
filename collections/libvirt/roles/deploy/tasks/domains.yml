@@ -1,0 +1,70 @@
+- name: Declare empty guest configs
+  set_fact:
+    libvirt_guest_configs: []
+
+- name: "Show libvirt guests in {{ libvirt_guest_group }}"
+  debug:
+    var: "groups[libvirt_guest_group]"
+
+- name: "Build domain config for guests hosted on {{ libvirt_hypervisor_identifier }}"
+  include_tasks: add_domain_config.yml
+  loop: "{{ groups[libvirt_guest_group] | default([]) }}"
+  loop_control:
+    loop_var: libvirt_guest_name
+  when: hostvars[libvirt_guest_name].libvirt_hypervisor | default('') == libvirt_hypervisor_identifier
+
+- name: Show libvirt guest domain configs
+  debug:
+    var: libvirt_guest_configs
+    verbosity: 2
+
+- name: "Ensure disk image destination directories exist on {{ libvirt_hypervisor_identifier }}"
+  ansible.builtin.file:
+    path: "{{ libvirt_guest.disk_path | dirname }}"
+    state: directory
+  loop: "{{ libvirt_guest_configs }}"
+  loop_control:
+    loop_var: libvirt_guest
+    label: "{{ libvirt_guest.name }}"
+  when: libvirt_guest.image_path is defined and libvirt_guest.disk_path is defined
+
+- name: "Upload guest disk images from the controller to {{ libvirt_hypervisor_identifier }}"
+  ansible.builtin.copy:
+    src: "{{ libvirt_guest.image_path }}"
+    dest: "{{ libvirt_guest.disk_path }}"
+    mode: preserve
+  loop: "{{ libvirt_guest_configs }}"
+  loop_control:
+    loop_var: libvirt_guest
+    label: "{{ libvirt_guest.name }}"
+  when: libvirt_guest.image_path is defined and libvirt_guest.disk_path is defined
+
+- name: Define libvirt guest domains
+  community.libvirt.virt:
+    uri: "{{ libvirt_uri }}"
+    command: define
+    xml: "{{ lookup('template', 'domain.xml.j2') }}"
+  loop: "{{ libvirt_guest_configs }}"
+  loop_control:
+    loop_var: libvirt_guest
+    label: "{{ libvirt_guest.name }}"
+
+- name: Set libvirt guest domain autostart
+  community.libvirt.virt:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_guest.name }}"
+    autostart: "{{ (libvirt_guest.autostart | default(false)) | bool }}"
+  loop: "{{ libvirt_guest_configs }}"
+  loop_control:
+    loop_var: libvirt_guest
+    label: "{{ libvirt_guest.name }}"
+
+- name: Ensure libvirt guest domains are in the desired state
+  community.libvirt.virt:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_guest.name }}"
+    state: "{{ libvirt_guest.state | default(libvirt_guest_default_state) }}"
+  loop: "{{ libvirt_guest_configs }}"
+  loop_control:
+    loop_var: libvirt_guest
+    label: "{{ libvirt_guest.name }}"

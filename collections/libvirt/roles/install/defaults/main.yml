@@ -1,0 +1,8 @@
+libvirt_packages:
+  - qemu-kvm
+  - libvirt-daemon-system
+  - libvirt-clients
+  - bridge-utils
+  - virtinst
+  - ovmf
+libvirt_usernames: []

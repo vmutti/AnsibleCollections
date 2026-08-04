@@ -1,0 +1,43 @@
+<pool type="{{ libvirt_pool.type | default('dir') }}">
+  <name>{{ libvirt_pool.name }}</name>
+{% if libvirt_pool.uuid is defined %}
+  <uuid>{{ libvirt_pool.uuid }}</uuid>
+{% endif %}
+{% if libvirt_pool.source is defined %}
+  <source>
+{% if libvirt_pool.source.host is defined %}
+    <host name="{{ libvirt_pool.source.host }}"/>
+{% endif %}
+{% if libvirt_pool.source.dir is defined %}
+    <dir path="{{ libvirt_pool.source.dir }}"/>
+{% endif %}
+{% if libvirt_pool.source.device is defined %}
+    <device path="{{ libvirt_pool.source.device }}"/>
+{% endif %}
+{% if libvirt_pool.source.name is defined %}
+    <name>{{ libvirt_pool.source.name }}</name>
+{% endif %}
+{% if libvirt_pool.source.format is defined %}
+    <format type="{{ libvirt_pool.source.format }}"/>
+{% endif %}
+  </source>
+{% endif %}
+{% if libvirt_pool.target_path is defined %}
+  <target>
+    <path>{{ libvirt_pool.target_path }}</path>
+{% if libvirt_pool.permissions is defined %}
+    <permissions>
+{% if libvirt_pool.permissions.owner is defined %}
+      <owner>{{ libvirt_pool.permissions.owner }}</owner>
+{% endif %}
+{% if libvirt_pool.permissions.group is defined %}
+      <group>{{ libvirt_pool.permissions.group }}</group>
+{% endif %}
+{% if libvirt_pool.permissions.mode is defined %}
+      <mode>{{ libvirt_pool.permissions.mode }}</mode>
+{% endif %}
+    </permissions>
+{% endif %}
+  </target>
+{% endif %}
+</pool>

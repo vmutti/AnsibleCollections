@@ -1,0 +1,4 @@
+libvirt_uri: qemu:///system
+libvirt_guest_group: libvirt_guests
+libvirt_hypervisor_identifier: "{{ inventory_hostname }}"
+libvirt_guest_default_state: running

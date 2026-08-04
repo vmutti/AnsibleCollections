@@ -1,0 +1,23 @@
+- name: "Declare empty domain config for {{ libvirt_guest_name }}"
+  set_fact:
+    libvirt_guest_config: {}
+
+- name: "Copy domain config from host variables for {{ libvirt_guest_name }}"
+  set_fact:
+    libvirt_guest_config: "{{ libvirt_guest_config | combine( [item | combine({'key': item.key[8:]})] | items2dict ) }}"
+  with_items: "{{ dict(hostvars[libvirt_guest_name]) | dict2items | selectattr('key', 'match', '^libvirt_.*$') }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: "Add guest name=\"{{ libvirt_guest_name }}\""
+  set_fact:
+    libvirt_guest_config: "{{ libvirt_guest_config | combine({'name': libvirt_guest_name}) }}"
+
+- name: "Show domain config for {{ libvirt_guest_name }}"
+  debug:
+    var: libvirt_guest_config
+    verbosity: 2
+
+- name: "Add domain {{ libvirt_guest_name }} to list"
+  set_fact:
+    libvirt_guest_configs: "{{ libvirt_guest_configs + [libvirt_guest_config] }}"

@@ -1,0 +1,8 @@
+- name: Deploy libvirt storage pools
+  include_tasks: pools.yml
+
+- name: Deploy libvirt networks
+  include_tasks: networks.yml
+
+- name: Deploy libvirt guest domains
+  include_tasks: domains.yml
