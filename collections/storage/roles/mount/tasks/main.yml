@@ -1,0 +1,20 @@
+- name: "Validate configured disk mounts set mount_point and (device or label)"
+  assert:
+    that:
+      - disk_mount.mount_point is defined
+      - disk_mount.device is defined or disk_mount.label is defined
+    fail_msg: >-
+      Disk mount {{ disk_mount }} must set mount_point, and either device
+      (a raw block device path, e.g. for a hypervisor's own physical disks) or
+      label (a filesystem label, e.g. for a guest volume attached by libvirt).
+  loop: "{{ disk_mounts }}"
+  loop_control:
+    loop_var: disk_mount
+    label: "{{ disk_mount.mount_point | default('(no mount_point)') }}"
+
+- name: "Mount configured disk drives"
+  include_tasks: mount_drive.yml
+  loop: "{{ disk_mounts }}"
+  loop_control:
+    loop_var: disk_mount
+    label: "{{ disk_mount.mount_point }}"

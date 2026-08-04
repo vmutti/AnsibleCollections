@@ -18,6 +18,48 @@
     var: libvirt_guest_configs
     verbosity: 2
 
+- name: Declare empty guest volume definitions
+  set_fact:
+    libvirt_guest_volumes: []
+
+- name: "Collect extra storage volumes for guests hosted on {{ libvirt_hypervisor_identifier }}"
+  set_fact:
+    libvirt_guest_volumes: "{{ libvirt_guest_volumes + (libvirt_guest.volumes | default([])) }}"
+  loop: "{{ libvirt_guest_configs }}"
+  loop_control:
+    loop_var: libvirt_guest
+    label: "{{ libvirt_guest.name }}"
+
+- name: Show extra storage volume definitions
+  debug:
+    var: libvirt_guest_volumes
+    verbosity: 2
+
+- name: "Validate extra storage volumes set pool, name and capacity_gb"
+  assert:
+    that:
+      - libvirt_volume.pool is defined
+      - libvirt_volume.name is defined
+      - libvirt_volume.capacity_gb is defined
+    fail_msg: >-
+      Guest volume {{ libvirt_volume }} must set pool, name and capacity_gb (and
+      target_dev, to actually attach it to a domain).
+  loop: "{{ libvirt_guest_volumes }}"
+  loop_control:
+    loop_var: libvirt_volume
+    label: "{{ libvirt_volume.name | default('(unnamed)') }}"
+
+- name: "Define extra storage volumes for guests hosted on {{ libvirt_hypervisor_identifier }}"
+  community.libvirt.virt_volume:
+    uri: "{{ libvirt_uri }}"
+    pool: "{{ libvirt_volume.pool }}"
+    state: present
+    xml: "{{ lookup('template', 'volume.xml.j2') }}"
+  loop: "{{ libvirt_guest_volumes }}"
+  loop_control:
+    loop_var: libvirt_volume
+    label: "{{ libvirt_volume.name }}"
+
 - name: "Ensure disk image destination directories exist on {{ libvirt_hypervisor_identifier }}"
   ansible.builtin.file:
     path: "{{ libvirt_guest.disk_path | dirname }}"

@@ -26,6 +26,13 @@
       <target dev="vda" bus="{{ libvirt_guest.disk_bus | default('virtio') }}"/>
     </disk>
 {% endif %}
+{% for libvirt_volume in libvirt_guest.volumes | default([]) %}
+    <disk type="volume" device="disk">
+      <driver name="qemu" type="{{ libvirt_volume.format | default('qcow2') }}"/>
+      <source pool="{{ libvirt_volume.pool }}" volume="{{ libvirt_volume.name }}"/>
+      <target dev="{{ libvirt_volume.target_dev }}" bus="{{ libvirt_volume.bus | default('virtio') }}"/>
+    </disk>
+{% endfor %}
 {% if libvirt_guest.cdrom_path is defined %}
     <disk type="file" device="cdrom">
       <driver name="qemu" type="raw"/>

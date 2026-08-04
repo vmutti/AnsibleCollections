@@ -1,0 +1,20 @@
+<volume>
+  <name>{{ libvirt_volume.name }}</name>
+  <capacity unit="G">{{ libvirt_volume.capacity_gb }}</capacity>
+  <target>
+    <format type="{{ libvirt_volume.format | default('qcow2') }}"/>
+{% if libvirt_volume.permissions is defined %}
+    <permissions>
+{% if libvirt_volume.permissions.owner is defined %}
+      <owner>{{ libvirt_volume.permissions.owner }}</owner>
+{% endif %}
+{% if libvirt_volume.permissions.group is defined %}
+      <group>{{ libvirt_volume.permissions.group }}</group>
+{% endif %}
+{% if libvirt_volume.permissions.mode is defined %}
+      <mode>{{ libvirt_volume.permissions.mode }}</mode>
+{% endif %}
+    </permissions>
+{% endif %}
+  </target>
+</volume>

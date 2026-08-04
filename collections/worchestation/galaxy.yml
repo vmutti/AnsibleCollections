@@ -19,6 +19,7 @@ dependencies:
   vmutti.updates: '>=1.0.0'
   vmutti.virtualbox_guest: '>=1.0.0'
   vmutti.libvirt: '>=1.0.0'
+  vmutti.storage: '>=1.0.0'
   vmutti.users: '>=1.0.0'
   vmutti.zsh: '>=1.0.0'
   vmutti.tmux: '>=1.0.0'

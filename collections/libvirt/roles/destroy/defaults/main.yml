@@ -1,0 +1,4 @@
+libvirt_uri: qemu:///system
+libvirt_destroy_pattern: ""
+libvirt_destroy_confirm: false
+libvirt_destroy_remove_storage: false

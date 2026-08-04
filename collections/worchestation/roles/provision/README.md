@@ -1,7 +1,7 @@
 vmutti.worchestation.provision
 ==============================
 
-Meta-role that includes ~20 other `vmutti.*` roles (updates, VirtualBox guest additions, libvirt/QEMU-KVM, human user setup, zsh/tmux/vim/wireguard, XFCE/fonts/chrome/alacritty/sublime, docker/gcloud/kubectl/kind, golang, and security tools like autochrome/mitmproxy/burp/kali) behind tags such as `base`, `gui`, `tools`, `virtualbox_guest`, and `libvirt`, so a host's group membership decides which subset actually runs.
+Meta-role that includes ~20 other `vmutti.*` roles (updates, VirtualBox guest additions, libvirt/QEMU-KVM, storage drive mounting, human user setup, zsh/tmux/vim/wireguard, XFCE/fonts/chrome/alacritty/sublime, docker/gcloud/kubectl/kind, golang, and security tools like autochrome/mitmproxy/burp/kali) behind tags such as `base`, `gui`, `tools`, `virtualbox_guest`, `libvirt`, and `storage`, so a host's group membership decides which subset actually runs.
 
 Requirements
 ------------
@@ -16,7 +16,7 @@ No variables of its own beyond `--tags`/`--skip-tags` selection; see the individ
 Dependencies
 ------------
 
-vmutti.updates, vmutti.virtualbox_guest, vmutti.libvirt, vmutti.users, vmutti.zsh, vmutti.tmux, vmutti.vim, vmutti.wireguard, vmutti.xfce, vmutti.fonts, vmutti.chrome, vmutti.alacritty, vmutti.sublime, vmutti.docker, vmutti.gcloud, vmutti.kubectl, vmutti.kind, vmutti.golang, vmutti.autochrome, vmutti.mitmproxy, vmutti.burp, vmutti.kali
+vmutti.updates, vmutti.virtualbox_guest, vmutti.libvirt, vmutti.storage, vmutti.users, vmutti.zsh, vmutti.tmux, vmutti.vim, vmutti.wireguard, vmutti.xfce, vmutti.fonts, vmutti.chrome, vmutti.alacritty, vmutti.sublime, vmutti.docker, vmutti.gcloud, vmutti.kubectl, vmutti.kind, vmutti.golang, vmutti.autochrome, vmutti.mitmproxy, vmutti.burp, vmutti.kali
 
 Example Playbook
 -----------------

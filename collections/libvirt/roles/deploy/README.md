@@ -21,6 +21,8 @@ Role Variables
 
 `libvirt_guest_default_state`: state guest domains are put into when a guest doesn't set its own `libvirt_state`, default `running`.
 
+`libvirt_enable_ip_forward`: whether to persist and apply `net.ipv4.ip_forward = 1` on the hypervisor when a routed network is defined, default `true`. See [Routing a network onto the LAN](#routing-a-network-onto-the-lan).
+
 ### Pools and networks
 
 Set on the hypervisor host (or a group it belongs to). Every hostvar matching `^libvirt_pool_.*$` becomes one storage pool; every hostvar matching `^libvirt_net_.*$` becomes one network. The variable name itself is arbitrary (only the prefix is matched) — use it to give each definition a distinct key.
@@ -45,9 +47,32 @@ Set on the hypervisor host (or a group it belongs to). Every hostvar matching `^
 
 Pool keys: `name` (required), `type` (default `dir`), `uuid`, `target_path`, `permissions.{owner,group,mode}`, `source.{host,dir,device,name,format}`, `autostart` (default `true`), `build` (default `true`, set `false` to skip the `virt_pool` build command for pool types that don't support/need it).
 
-Network keys: `name` (required), `uuid`, `forward_mode` (omit for an isolated network), `bridge_name`, `stp`, `delay`, `domain_name`, `ip.{address,netmask}`, `ip.dhcp_range.{start,end}`, `ip.dhcp_hosts` (list of `{mac, name, ip}`), `autostart` (default `true`).
+Network keys: `name` (required), `uuid`, `forward_mode` (omit for an isolated network), `forward_dev`, `bridge_name`, `stp`, `delay`, `domain_name`, `ip.{address,netmask}`, `ip.dhcp_range.{start,end}`, `ip.dhcp_hosts` (list of `{mac, name, ip}`), `autostart` (default `true`).
 
 Guests that don't set their own `libvirt_network` fall back to libvirt's built-in `default` network, which the package defines but doesn't start or autostart. The role always ensures `default` is active and set to autostart, independent of any `libvirt_net_*` definitions.
+
+### Routing a network onto the LAN
+
+By default `forward_mode: nat` (or an omitted `forward_mode`, for an isolated network) hides guests behind the hypervisor's IP via masquerading — nothing upstream of the hypervisor can reach them directly. Set `forward_mode: route` instead to make libvirt treat the network as a plain routed subnet: guests keep their real IPs on the wire, libvirt adds `ACCEPT` forwarding rules (no masquerade) between the network's bridge and the rest of the host, and the subnet becomes reachable from the LAN once the LAN's router/gateway knows to send traffic for it to the hypervisor.
+
+    libvirt_net_lan_routed:
+      name: lan-routed
+      forward_mode: route
+      forward_dev: eth0
+      bridge_name: virbr-lan
+      domain_name: lan.local
+      ip:
+        address: 192.168.50.1
+        netmask: 255.255.255.0
+        dhcp_range:
+          start: 192.168.50.10
+          end: 192.168.50.200
+
+`forward_dev` is optional and restricts libvirt's forwarding rules to a single host NIC (typically the one facing the LAN) instead of every interface on the box — set it to the hypervisor's LAN-facing interface name.
+
+Pick a subnet (`ip.address`/`ip.netmask`) that doesn't overlap any existing LAN subnet or other libvirt network, since it needs its own routing entry upstream. The hypervisor's LAN IP becomes the next-hop gateway for that subnet — see your router/gateway's documentation for how to add a static route for it (e.g. a USG: `Settings > Networks > Create New Network`, type "Static Route", destination the guest subnet in CIDR, next hop the hypervisor's LAN IP).
+
+Routed networks require `net.ipv4.ip_forward = 1` on the hypervisor. The role sets this (persisted under `/etc/sysctl.d/99-libvirt-routed-networks.conf` and applied immediately) whenever any `libvirt_net_*` definition uses `forward_mode: route`; set `libvirt_enable_ip_forward: false` to opt out if forwarding is already managed elsewhere.
 
 ### Guest domains
 
@@ -62,7 +87,31 @@ Each guest is an inventory host in `libvirt_guest_group`. Its own hostvars, any 
     libvirt_network: guests
     libvirt_autostart: true
 
-Other guest keys: `uuid`, `memory_mb` (default `1024`), `vcpus` (default `1`), `arch` (default `x86_64`), `machine` (default `pc`), `boot_dev` (default `hd`), `disk_path`, `disk_format` (default `qcow2`), `disk_bus` (default `virtio`), `cdrom_path`, `network` (default `default`), `mac`, `nic_model` (default `virtio`), `graphics_type` (default `vnc`), `graphics_listen` (default `0.0.0.0`), `video_model` (default `qxl`), `autostart` (default `false`), `state` (default `libvirt_guest_default_state`).
+Other guest keys: `uuid`, `memory_mb` (default `1024`), `vcpus` (default `1`), `arch` (default `x86_64`), `machine` (default `pc`), `boot_dev` (default `hd`), `disk_path`, `disk_format` (default `qcow2`), `disk_bus` (default `virtio`), `cdrom_path`, `network` (default `default`), `mac`, `static_ip`, `nic_model` (default `virtio`), `graphics_type` (default `vnc`), `graphics_listen` (default `0.0.0.0`), `video_model` (default `qxl`), `autostart` (default `false`), `state` (default `libvirt_guest_default_state`), `volumes` (see below).
+
+### Extra storage volumes
+
+Set `libvirt_volumes` on a guest (a plain list, copied through as-is by the `^libvirt_.*$` prefix-strip) to attach one or more additional disks backed by volumes in one of this hypervisor's `libvirt_pool_*` pools:
+
+    libvirt_volumes:
+      - pool: storage
+        name: example.prod.Galaderon.local.vmutti.com-storage.qcow2
+        capacity_gb: 500
+        target_dev: vdb
+
+Volume keys: `pool` (required, must match a `libvirt_pool_*` name on this hypervisor), `name` (required — the volume's filename inside the pool; give it something predictable, e.g. derived from the guest name, so it's identifiable with `virsh vol-list <pool>`), `capacity_gb` (required), `target_dev` (required — the guest-visible device, e.g. `vdb`), `format` (default `qcow2`), `bus` (default `virtio`), `permissions.{owner,group,mode}`.
+
+The role creates each referenced volume (via `virt_volume`, idempotent — reruns won't recreate or shrink it) before defining any domains, then attaches it to the domain XML as a pool-backed `<disk type="volume">`, not a `<disk type="file">`. This matters for deletion: `vmutti.libvirt.destroy`'s `libvirt_destroy_remove_storage`/`delete_volumes` flag only ever deletes `file`-backed disk sources (the guest's own `disk_path`/`cdrom_path`) — pool-backed volumes are never touched by it and survive undefining the domain. Remove one explicitly with `virt_volume` (`state: absent`) if you actually want it gone.
+
+### Static IPs for guests
+
+Set `static_ip` alongside `mac` on a guest to have it always come up on the same address:
+
+    libvirt_network: lan-routed
+    libvirt_mac: "52:54:00:12:34:56"
+    libvirt_static_ip: 192.168.60.50
+
+The role turns this into a DHCP host reservation (`ip.dhcp_hosts`, keyed on `mac`) on whichever `libvirt_net_*` definition matches the guest's `libvirt_network`, merging it in alongside any reservations already listed there by hand — the guest still gets its address via DHCP, it just always gets the same one. `mac` is required whenever `static_ip` is set (the role fails the run otherwise, since a reservation needs something to bind to), and the target network must be one of this hypervisor's `libvirt_net_*` definitions with `ip.dhcp_range` configured (not the built-in `default` network, which the role never redefines) — the role fails the run with a clear message if either isn't true.
 
 ### Disk image upload
 

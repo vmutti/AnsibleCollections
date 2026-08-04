@@ -19,6 +19,94 @@
     var: libvirt_net_definitions
     verbosity: 2
 
+- name: "Validate static-IP guests also set a MAC address on {{ inventory_hostname }}"
+  assert:
+    that:
+      - hostvars[libvirt_guest_name].libvirt_mac is defined
+    fail_msg: >-
+      Guest "{{ libvirt_guest_name }}" sets libvirt_static_ip but has no libvirt_mac;
+      a fixed MAC is required so the DHCP reservation can bind to it.
+  loop: "{{ groups[libvirt_guest_group] | default([]) }}"
+  loop_control:
+    loop_var: libvirt_guest_name
+  when:
+    - hostvars[libvirt_guest_name].libvirt_hypervisor | default('') == libvirt_hypervisor_identifier
+    - hostvars[libvirt_guest_name].libvirt_static_ip is defined
+
+- name: Declare empty guest static-IP DHCP reservations
+  set_fact:
+    libvirt_net_guest_dhcp_hosts: []
+
+- name: "Collect static-IP DHCP reservations for guests hosted on {{ libvirt_hypervisor_identifier }}"
+  set_fact:
+    libvirt_net_guest_dhcp_hosts: "{{ libvirt_net_guest_dhcp_hosts + [{'network': hostvars[libvirt_guest_name].libvirt_network | default('default'), 'mac': hostvars[libvirt_guest_name].libvirt_mac, 'name': libvirt_guest_name, 'ip': hostvars[libvirt_guest_name].libvirt_static_ip}] }}"
+  loop: "{{ groups[libvirt_guest_group] | default([]) }}"
+  loop_control:
+    loop_var: libvirt_guest_name
+  when:
+    - hostvars[libvirt_guest_name].libvirt_hypervisor | default('') == libvirt_hypervisor_identifier
+    - hostvars[libvirt_guest_name].libvirt_static_ip is defined
+
+- name: Show guest static-IP DHCP reservations
+  debug:
+    var: libvirt_net_guest_dhcp_hosts
+    verbosity: 2
+
+- name: "Determine which libvirt networks on {{ inventory_hostname }} have DHCP configured"
+  set_fact:
+    libvirt_net_dhcp_capable_names: "{{ libvirt_net_definitions | selectattr('ip', 'defined') | selectattr('ip.dhcp_range', 'defined') | map(attribute='name') | list }}"
+
+- name: "Validate static-IP guest reservations target a DHCP-capable libvirt network"
+  assert:
+    that:
+      - reservation.network in libvirt_net_dhcp_capable_names
+    fail_msg: >-
+      Guest "{{ reservation.name }}" sets libvirt_static_ip but its libvirt_network
+      ("{{ reservation.network }}") is not one of this hypervisor's DHCP-capable
+      libvirt_net_* definitions: {{ libvirt_net_dhcp_capable_names }}.
+  loop: "{{ libvirt_net_guest_dhcp_hosts }}"
+  loop_control:
+    loop_var: reservation
+    label: "{{ reservation.name }}"
+
+- name: Declare merged libvirt network definitions
+  set_fact:
+    libvirt_net_merged_definitions: []
+
+- name: "Merge guest static-IP DHCP reservations into libvirt network definitions"
+  set_fact:
+    libvirt_net_merged_definitions: "{{ libvirt_net_merged_definitions + [libvirt_net | combine({'ip': (libvirt_net.ip | default({})) | combine({'dhcp_hosts': (libvirt_net.ip.dhcp_hosts | default([])) + (libvirt_net_guest_dhcp_hosts | selectattr('network', 'equalto', libvirt_net.name) | list)})}, recursive=True)] }}"
+  loop: "{{ libvirt_net_definitions }}"
+  loop_control:
+    loop_var: libvirt_net
+    label: "{{ libvirt_net.name }}"
+
+- name: Use libvirt network definitions merged with guest static-IP reservations
+  set_fact:
+    libvirt_net_definitions: "{{ libvirt_net_merged_definitions }}"
+
+- name: "Find routed (LAN-facing) libvirt network definitions on {{ inventory_hostname }}"
+  set_fact:
+    libvirt_net_routed_definitions: "{{ libvirt_net_definitions | selectattr('forward_mode', 'defined') | selectattr('forward_mode', 'equalto', 'route') | list }}"
+
+- name: Enable IPv4 forwarding for routed libvirt networks
+  become: true
+  when:
+    - libvirt_net_routed_definitions | length > 0
+    - libvirt_enable_ip_forward | bool
+  block:
+    - name: Persist net.ipv4.ip_forward in sysctl.d
+      copy:
+        dest: /etc/sysctl.d/99-libvirt-routed-networks.conf
+        mode: "0644"
+        content: |
+          # Managed by vmutti.libvirt.deploy: required for routed (non-NAT) libvirt networks.
+          net.ipv4.ip_forward = 1
+
+    - name: Apply net.ipv4.ip_forward immediately
+      command: sysctl -w net.ipv4.ip_forward=1
+      changed_when: false
+
 - name: Define libvirt networks
   community.libvirt.virt_net:
     uri: "{{ libvirt_uri }}"

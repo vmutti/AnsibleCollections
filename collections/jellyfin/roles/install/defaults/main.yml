@@ -1,0 +1,7 @@
+jellyfin_hardware_acceleration_enabled: false
+jellyfin_hardware_acceleration_packages:
+  - intel-media-va-driver-non-free
+  - vainfo
+jellyfin_hardware_acceleration_groups:
+  - video
+  - render

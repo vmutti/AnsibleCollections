@@ -4,7 +4,7 @@
   <uuid>{{ libvirt_net.uuid }}</uuid>
 {% endif %}
 {% if libvirt_net.forward_mode is defined %}
-  <forward mode="{{ libvirt_net.forward_mode }}"/>
+  <forward mode="{{ libvirt_net.forward_mode }}"{% if libvirt_net.forward_dev is defined %} dev="{{ libvirt_net.forward_dev }}"{% endif %}/>
 {% endif %}
 {% if libvirt_net.bridge_name is defined %}
   <bridge name="{{ libvirt_net.bridge_name }}" stp="{{ libvirt_net.stp | default('on') }}" delay="{{ libvirt_net.delay | default('0') }}"/>

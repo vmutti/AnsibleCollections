@@ -1,0 +1,34 @@
+# create_filesystem defaults to true, but only actually runs when a device path
+# is set, since a label-only entry has nothing to run mkfs against and is
+# assumed to already be formatted (e.g. it was labeled when first provisioned).
+- name: "Create {{ disk_mount.fstype | default('ext4') }} filesystem on {{ disk_mount.device }} for {{ disk_mount.mount_point }}"
+  become: true
+  community.general.filesystem:
+    dev: "{{ disk_mount.device }}"
+    fstype: "{{ disk_mount.fstype | default('ext4') }}"
+    opts: "{{ ('-L ' + disk_mount.label) if disk_mount.label is defined else omit }}"
+  when:
+    - disk_mount.device is defined
+    - disk_mount.create_filesystem | default(true) | bool
+
+- name: "Ensure mount point {{ disk_mount.mount_point }} exists"
+  become: true
+  ansible.builtin.file:
+    path: "{{ disk_mount.mount_point }}"
+    state: directory
+    owner: "{{ disk_mount.owner | default('root') }}"
+    group: "{{ disk_mount.group | default('root') }}"
+    mode: "{{ disk_mount.mode | default('0755') }}"
+
+# Mounting by label (rather than device path) is preferred whenever a label is
+# available, since it keeps working across guest reboots even if libvirt/the
+# kernel enumerate attached disks (/dev/vdb, /dev/sdb, ...) in a different
+# order.
+- name: "Mount {{ disk_mount.mount_point }} on boot"
+  become: true
+  ansible.posix.mount:
+    path: "{{ disk_mount.mount_point }}"
+    src: "{{ ('LABEL=' + disk_mount.label) if disk_mount.label is defined else disk_mount.device }}"
+    fstype: "{{ disk_mount.fstype | default('ext4') }}"
+    opts: "{{ disk_mount.opts | default('defaults') }}"
+    state: mounted

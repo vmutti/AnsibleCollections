@@ -1,0 +1,56 @@
+- name: "Install Jellyfin if necessary"
+  when: "'host_install_jellyfin' in group_names"
+  block:
+    - name: Install packages
+      become: true
+      apt:
+        update_cache: true
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+
+    - name: Install GPG key for Jellyfin
+      get_url:
+        url: https://repo.jellyfin.org/jellyfin_team.gpg.key
+        dest: /etc/apt/keyrings/jellyfin.asc
+        mode: '0644'
+        force: true
+      become: true
+
+    - name: Add Jellyfin repository into sources list
+      become: true
+      apt_repository:
+        repo: "deb [arch={{jellyfin_architecture_name_mapping[ansible_facts.userspace_architecture]}} signed-by=/etc/apt/keyrings/jellyfin.asc] https://repo.jellyfin.org/{{jellyfin_os_family_mapping[ansible_facts.distribution]}} {{(ansible_facts.distribution_release=='kali-rolling') | ternary('bookworm', ansible_facts.distribution_release) }} main"
+        state: present
+        filename: jellyfin
+
+    - name: Install jellyfin package
+      become: true
+      apt:
+        update_cache: true
+        state: fixed
+        pkg:
+          - jellyfin
+
+    - name: Install hardware acceleration packages
+      become: true
+      apt:
+        update_cache: true
+        pkg: "{{ jellyfin_hardware_acceleration_packages }}"
+      when: jellyfin_hardware_acceleration_enabled
+
+    - name: "Add jellyfin to {{ jellyfin_hardware_acceleration_groups }} for hardware transcoding"
+      become: true
+      user:
+        name: jellyfin
+        append: true
+        groups: "{{ jellyfin_hardware_acceleration_groups }}"
+      when: jellyfin_hardware_acceleration_enabled
+
+    - name: Enable and start jellyfin
+      become: true
+      systemd:
+        name: jellyfin
+        enabled: true
+        state: started

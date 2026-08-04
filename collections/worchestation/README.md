@@ -4,7 +4,7 @@ Worchestation (pronounced "Wuss-station") is a tool used to orchestrate personal
 
 ## Roles
 
-- [provision](roles/provision/README.md) — includes the full set of vmutti.* roles behind tags to provision a workstation
+- [provision](roles/provision/README.md) — includes the full set of vmutti.* roles behind tags to provision a workstation, including `vmutti.storage.mount` for disk drives
 
 ## Building a disk image
 

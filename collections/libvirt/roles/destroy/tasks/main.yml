@@ -1,0 +1,44 @@
+- name: Fail unless a destroy pattern is set
+  ansible.builtin.fail:
+    msg: "libvirt_destroy_pattern must be set to a non-empty regex matching the guest domain name(s) to delete, e.g. -e libvirt_destroy_pattern='^test-'"
+  when: not libvirt_destroy_pattern
+
+- name: Fail unless the destroy is confirmed
+  ansible.builtin.fail:
+    msg: "Set -e libvirt_destroy_confirm=true to actually delete guest domains matching '{{ libvirt_destroy_pattern }}' from {{ inventory_hostname }}"
+  when: not (libvirt_destroy_confirm | bool)
+
+- name: "List guest domains defined on {{ inventory_hostname }}"
+  community.libvirt.virt:
+    uri: "{{ libvirt_uri }}"
+    command: list_vms
+  register: libvirt_destroy_list
+
+- name: "Match guest domains against {{ libvirt_destroy_pattern }}"
+  set_fact:
+    libvirt_destroy_matches: "{{ libvirt_destroy_list.list_vms | default([]) | select('match', libvirt_destroy_pattern) | list }}"
+
+- name: "Show guest domains matched on {{ inventory_hostname }}"
+  debug:
+    var: libvirt_destroy_matches
+
+- name: "Force off matched guest domains before undefining"
+  community.libvirt.virt:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_destroy_guest }}"
+    state: destroyed
+  loop: "{{ libvirt_destroy_matches }}"
+  loop_control:
+    loop_var: libvirt_destroy_guest
+    label: "{{ libvirt_destroy_guest }}"
+
+- name: "Undefine matched guest domains on {{ inventory_hostname }}"
+  community.libvirt.virt:
+    uri: "{{ libvirt_uri }}"
+    name: "{{ libvirt_destroy_guest }}"
+    command: undefine
+    flags: "{{ ['delete_volumes'] if (libvirt_destroy_remove_storage | bool) else omit }}"
+  loop: "{{ libvirt_destroy_matches }}"
+  loop_control:
+    loop_var: libvirt_destroy_guest
+    label: "{{ libvirt_destroy_guest }}"

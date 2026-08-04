@@ -1,0 +1,4 @@
+- name: Destroy libvirt guest domains matching a pattern
+  hosts: "{{ target_hosts|default('all') }}:&libvirt_hypervisor"
+  roles:
+    - vmutti.libvirt.destroy
