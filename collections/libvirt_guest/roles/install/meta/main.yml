@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Shoshana Makinen
+  description: Installs the QEMU guest agent so the libvirt host can query guest info and manage the VM cleanly
+
+  license: MIT
+
+  min_ansible_version: 2.1
+
+  galaxy_tags: []
+
+dependencies: []

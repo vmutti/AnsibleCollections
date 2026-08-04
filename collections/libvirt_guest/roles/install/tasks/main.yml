@@ -1,0 +1,16 @@
+- name: "Install QEMU guest agent if necessary"
+  when: "'host_install_libvirt_guest' in group_names"
+  block:
+    - name: "Installing qemu-guest-agent package"
+      become: true
+      apt:
+        update_cache: yes
+        pkg:
+          - qemu-guest-agent
+
+    - name: "Enable and start qemu-guest-agent"
+      become: true
+      systemd:
+        name: qemu-guest-agent
+        enabled: true
+        state: started

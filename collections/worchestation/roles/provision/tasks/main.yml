@@ -17,6 +17,9 @@
     - role: vmutti.libvirt.install
       tags: ['libvirt']
 
+    - role: vmutti.libvirt_guest.install
+      tags: ['libvirt_guest']
+
     - role: vmutti.users.humans
       tags: ['user_configuration']
 
