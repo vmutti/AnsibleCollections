@@ -6,7 +6,13 @@
   community.general.filesystem:
     dev: "{{ disk_mount.device }}"
     fstype: "{{ disk_mount.fstype | default('ext4') }}"
-    opts: "{{ ('-L ' + disk_mount.label) if disk_mount.label is defined else omit }}"
+    opts: >-
+      {{
+        ([
+          ('-L ' + disk_mount.label) if disk_mount.label is defined else None,
+          disk_mount.mkfs_opts | default(None)
+        ] | reject('none') | join(' ')) or omit
+      }}
   when:
     - disk_mount.device is defined
     - disk_mount.create_filesystem | default(true) | bool
