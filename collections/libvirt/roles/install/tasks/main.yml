@@ -25,3 +25,15 @@
       with_items: "{{ libvirt_usernames }}"
       loop_control:
         loop_var: libvirt_username
+
+    - name: Allow libvirt group members to manage libvirt without polkit authentication
+      become: true
+      copy:
+        dest: /etc/polkit-1/rules.d/50-libvirt-group.rules
+        mode: "0644"
+        content: |
+          polkit.addRule(function(action, subject) {
+              if (action.id.indexOf("org.libvirt.") === 0 && subject.isInGroup("libvirt")) {
+                  return polkit.Result.YES;
+              }
+          });
