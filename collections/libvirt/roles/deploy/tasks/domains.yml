@@ -22,6 +22,7 @@
   ansible.builtin.file:
     path: "{{ libvirt_guest.disk_path | dirname }}"
     state: directory
+  become: true
   loop: "{{ libvirt_guest_configs }}"
   loop_control:
     loop_var: libvirt_guest
