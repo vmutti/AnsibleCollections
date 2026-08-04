@@ -5,4 +5,6 @@ libvirt_packages:
   - bridge-utils
   - virtinst
   - ovmf
+  - python3-libvirt
+  - python3-lxml
 libvirt_usernames: []
