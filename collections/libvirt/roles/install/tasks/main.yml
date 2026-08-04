@@ -14,7 +14,7 @@
         enabled: true
         state: started
 
-    - name: "Add {{ libvirt_username }} to libvirt/kvm groups"
+    - name: "Add {{ libvirt_usernames }} to libvirt/kvm groups"
       become: true
       user:
         name: "{{ libvirt_username }}"

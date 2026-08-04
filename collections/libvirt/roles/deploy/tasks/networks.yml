@@ -1,3 +1,15 @@
+- name: Ensure libvirt's built-in default network is active
+  community.libvirt.virt_net:
+    uri: "{{ libvirt_uri }}"
+    name: default
+    state: active
+
+- name: Ensure libvirt's built-in default network autostarts
+  community.libvirt.virt_net:
+    uri: "{{ libvirt_uri }}"
+    name: default
+    autostart: true
+
 - name: "Find libvirt network variables on {{ inventory_hostname }}"
   set_fact:
     libvirt_net_definitions: "{{ dict(hostvars[inventory_hostname]) | dict2items | selectattr('key', 'match', '^libvirt_net_.*$') | map(attribute='value') | list }}"

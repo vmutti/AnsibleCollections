@@ -47,6 +47,8 @@ Pool keys: `name` (required), `type` (default `dir`), `uuid`, `target_path`, `pe
 
 Network keys: `name` (required), `uuid`, `forward_mode` (omit for an isolated network), `bridge_name`, `stp`, `delay`, `domain_name`, `ip.{address,netmask}`, `ip.dhcp_range.{start,end}`, `ip.dhcp_hosts` (list of `{mac, name, ip}`), `autostart` (default `true`).
 
+Guests that don't set their own `libvirt_network` fall back to libvirt's built-in `default` network, which the package defines but doesn't start or autostart. The role always ensures `default` is active and set to autostart, independent of any `libvirt_net_*` definitions.
+
 ### Guest domains
 
 Each guest is an inventory host in `libvirt_guest_group`. Its own hostvars, any key matching `^libvirt_.*$`, are collected and the `libvirt_` prefix stripped to build the domain definition — the same pattern `vmutti.vagrant.deploy` uses for `vagrant_*` guest vars.
