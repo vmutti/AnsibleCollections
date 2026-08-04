@@ -8,9 +8,17 @@
         pkg:
           - qemu-guest-agent
 
-    - name: "Enable and start qemu-guest-agent"
+    # Only enable here, don't state: started. qemu-guest-agent.service
+    # BindsTo the virtio-serial device unit for
+    # /dev/virtio-ports/org.qemu.guest_agent.0, which doesn't exist yet in the
+    # Packer-built VM (Packer's qemu builder never attaches that channel) —
+    # trying to start it here fails with "A dependency job for
+    # qemu-guest-agent.service failed". Enabling is enough: once this image is
+    # booted as a real libvirt guest with the channel attached (see
+    # vmutti.libvirt.deploy), udev creates the device unit and systemd starts
+    # the service automatically via that binding.
+    - name: "Enable qemu-guest-agent"
       become: true
       systemd:
         name: qemu-guest-agent
         enabled: true
-        state: started
