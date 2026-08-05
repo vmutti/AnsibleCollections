@@ -60,6 +60,42 @@
     loop_var: libvirt_volume
     label: "{{ libvirt_volume.name }}"
 
+# virt_volume's "present" only creates the volume if it's missing, and never
+# reconciles ownership/mode on one that already exists - so a volume.xml.j2
+# permissions block only ever takes effect the moment a volume is first
+# created. libvirt's own dynamic_ownership relabeling doesn't reliably pick up
+# the slack for pool-backed volumes either (see libvirt_volume_owner in
+# defaults/main.yml), so the role resolves and fixes up ownership itself,
+# every run, instead of trusting either of those.
+- name: "Resolve real paths of extra storage volumes for guests hosted on {{ libvirt_hypervisor_identifier }}"
+  ansible.builtin.command:
+    argv:
+      - virsh
+      - --connect
+      - "{{ libvirt_uri }}"
+      - vol-path
+      - --pool
+      - "{{ libvirt_volume.pool }}"
+      - "{{ libvirt_volume.name }}"
+  changed_when: false
+  loop: "{{ libvirt_guest_volumes }}"
+  loop_control:
+    loop_var: libvirt_volume
+    label: "{{ libvirt_volume.name }}"
+  register: libvirt_volume_paths
+
+- name: "Ensure extra storage volumes are owned by the qemu runtime user on {{ libvirt_hypervisor_identifier }}"
+  become: true
+  ansible.builtin.file:
+    path: "{{ libvirt_volume_path.stdout }}"
+    owner: "{{ libvirt_volume_path.libvirt_volume.permissions.owner | default(libvirt_volume_owner) }}"
+    group: "{{ libvirt_volume_path.libvirt_volume.permissions.group | default(libvirt_volume_group) }}"
+    mode: "{{ libvirt_volume_path.libvirt_volume.permissions.mode | default(libvirt_volume_mode) }}"
+  loop: "{{ libvirt_volume_paths.results }}"
+  loop_control:
+    loop_var: libvirt_volume_path
+    label: "{{ libvirt_volume_path.libvirt_volume.name }}"
+
 - name: "Ensure disk image destination directories exist on {{ libvirt_hypervisor_identifier }}"
   ansible.builtin.file:
     path: "{{ libvirt_guest.disk_path | dirname }}"

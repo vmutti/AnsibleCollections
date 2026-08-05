@@ -3,3 +3,17 @@ libvirt_guest_group: libvirt_guests
 libvirt_hypervisor_identifier: "{{ inventory_hostname }}"
 libvirt_guest_default_state: running
 libvirt_enable_ip_forward: true
+
+# libvirt's dynamic_ownership relabeling (which normally chowns disk images to
+# the configured qemu user/group right before a domain starts) does not reach
+# pool-backed <disk type="volume"> sources the way it does plain
+# <disk type="file"> sources - a volume created by virt_volume is left
+# root:root 0600, and qemu then fails to open it ("Permission denied") the
+# first time the guest is started. The role works around this itself (see
+# domains.yml) by chowning each extra storage volume to these defaults after
+# creating it, every run, instead of relying on libvirt to do it. Match these
+# to the `user`/`group` actually configured in /etc/libvirt/qemu.conf on your
+# hypervisors if they differ from Debian's defaults.
+libvirt_volume_owner: libvirt-qemu
+libvirt_volume_group: kvm
+libvirt_volume_mode: "0660"

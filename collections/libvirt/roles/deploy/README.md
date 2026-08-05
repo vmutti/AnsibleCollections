@@ -99,9 +99,13 @@ Set `libvirt_volumes` on a guest (a plain list, copied through as-is by the `^li
         capacity_gb: 500
         target_dev: vdb
 
-Volume keys: `pool` (required, must match a `libvirt_pool_*` name on this hypervisor), `name` (required — the volume's filename inside the pool; give it something predictable, e.g. derived from the guest name, so it's identifiable with `virsh vol-list <pool>`), `capacity_gb` (required), `target_dev` (required — the guest-visible device, e.g. `vdb`), `format` (default `qcow2`), `bus` (default `virtio`), `permissions.{owner,group,mode}`.
+Volume keys: `pool` (required, must match a `libvirt_pool_*` name on this hypervisor), `name` (required — the volume's filename inside the pool; give it something predictable, e.g. derived from the guest name, so it's identifiable with `virsh vol-list <pool>`), `capacity_gb` (required), `target_dev` (required — the guest-visible device, e.g. `vdb`), `format` (default `qcow2`), `bus` (default `virtio`), `permissions.{owner,group,mode}` (per-volume override of `libvirt_volume_owner`/`libvirt_volume_group`/`libvirt_volume_mode` below).
 
 The role creates each referenced volume (via `virt_volume`, idempotent — reruns won't recreate or shrink it) before defining any domains, then attaches it to the domain XML as a pool-backed `<disk type="volume">`, not a `<disk type="file">`. This matters for deletion: `vmutti.libvirt.destroy`'s `libvirt_destroy_remove_storage`/`delete_volumes` flag only ever deletes `file`-backed disk sources (the guest's own `disk_path`/`cdrom_path`) — pool-backed volumes are never touched by it and survive undefining the domain. Remove one explicitly with `virt_volume` (`state: absent`) if you actually want it gone.
+
+#### Volume ownership
+
+A freshly created volume is owned `root:root 0600` by default, and libvirt's `dynamic_ownership` relabeling (which normally chowns a domain's disks to the configured qemu user/group right before it starts) does not reliably reach pool-backed `<disk type="volume">` sources the way it does plain `<disk type="file">` sources — the guest's own `disk_path` disk gets relabeled fine, but a first boot referencing a fresh `libvirt_volumes` entry can fail with qemu erroring `Could not open '...': Permission denied`. The role doesn't depend on libvirt to fix this: after creating each volume it resolves the real path with `virsh vol-path` and `chown`/`chmod`s it directly, every run (not just on creation), to `libvirt_volume_owner`/`libvirt_volume_group`/`libvirt_volume_mode` (default `libvirt-qemu`/`kvm`/`0660`, matching Debian's default `/etc/libvirt/qemu.conf`). Override those role variables if a hypervisor's `qemu.conf` sets a different `user`/`group`, or set `permissions.{owner,group,mode}` on an individual volume to override just that one.
 
 ### Static IPs for guests
 
