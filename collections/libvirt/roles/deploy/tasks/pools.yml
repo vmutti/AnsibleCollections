@@ -18,6 +18,18 @@
     loop_var: libvirt_pool
     label: "{{ libvirt_pool.name }}"
 
+- name: Check current libvirt storage pool status
+  community.libvirt.virt_pool:
+    uri: "{{ libvirt_uri }}"
+    command: status
+    name: "{{ libvirt_pool.name }}"
+  loop: "{{ libvirt_pool_definitions }}"
+  loop_control:
+    loop_var: libvirt_pool
+    label: "{{ libvirt_pool.name }}"
+  register: libvirt_pool_status
+  changed_when: false
+
 - name: Build libvirt storage pools
   community.libvirt.virt_pool:
     uri: "{{ libvirt_uri }}"
@@ -26,8 +38,14 @@
   loop: "{{ libvirt_pool_definitions }}"
   loop_control:
     loop_var: libvirt_pool
+    index_var: libvirt_pool_index
     label: "{{ libvirt_pool.name }}"
-  when: (libvirt_pool.build | default(true)) | bool
+  when:
+    - (libvirt_pool.build | default(true)) | bool
+    # community.libvirt.virt_pool's "build" command errors with
+    # "Requested operation is not valid: storage pool '<name>' is already active"
+    # when run against a pool that's already active, so skip it in that case.
+    - libvirt_pool_status.results[libvirt_pool_index].status | default('') != 'active'
 
 - name: Set libvirt storage pool autostart
   community.libvirt.virt_pool:
