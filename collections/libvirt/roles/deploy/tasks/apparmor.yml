@@ -1,0 +1,38 @@
+# Debian confines libvirtd itself under its own enforcing AppArmor profile
+# (/etc/apparmor.d/usr.sbin.libvirtd), separate from the per-domain qemu
+# profile virt-aa-helper generates at start time. That profile's default
+# allowlist only covers well-known paths like /var/lib/libvirt/images/** -
+# a custom libvirt_pool_* target_path (e.g. a second disk mounted at
+# /var/lib/libvirt/pools/storage) isn't on it, so libvirtd can fail to open a
+# pool-backed volume with a bare "Permission denied" even though the file's
+# own ownership/mode (see libvirt_volume_owner in defaults/main.yml) is
+# already correct. Grant access to every configured pool path via a local
+# override instead of requiring that to be diagnosed by hand each time.
+- name: Check whether the libvirtd AppArmor profile is present
+  stat:
+    path: /etc/apparmor.d/usr.sbin.libvirtd
+  register: libvirt_apparmor_profile
+
+- name: Configure AppArmor access to libvirt storage pool paths
+  when:
+    - libvirt_manage_apparmor_pools | bool
+    - libvirt_apparmor_profile.stat.exists
+  become: true
+  block:
+    - name: Allow libvirtd access to configured storage pool paths
+      ansible.builtin.blockinfile:
+        path: /etc/apparmor.d/local/usr.sbin.libvirtd
+        create: true
+        mode: "0644"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - vmutti.libvirt.deploy storage pools"
+        block: |
+          {% for libvirt_pool in libvirt_pool_definitions %}
+          {% if libvirt_pool.target_path is defined %}
+          {{ libvirt_pool.target_path }}/** rwk,
+          {% endif %}
+          {% endfor %}
+      register: libvirt_apparmor_local_override
+
+    - name: Reload the libvirtd AppArmor profile
+      ansible.builtin.command: apparmor_parser -r /etc/apparmor.d/usr.sbin.libvirtd
+      when: libvirt_apparmor_local_override is changed

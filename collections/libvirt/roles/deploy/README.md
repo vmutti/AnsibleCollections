@@ -23,6 +23,8 @@ Role Variables
 
 `libvirt_enable_ip_forward`: whether to persist and apply `net.ipv4.ip_forward = 1` on the hypervisor when a routed network is defined, default `true`. See [Routing a network onto the LAN](#routing-a-network-onto-the-lan).
 
+`libvirt_manage_apparmor_pools`: whether to grant libvirtd's AppArmor profile access to configured `libvirt_pool_*` target paths, default `true`. See [AppArmor and custom pool paths](#apparmor-and-custom-pool-paths).
+
 ### Pools and networks
 
 Set on the hypervisor host (or a group it belongs to). Every hostvar matching `^libvirt_pool_.*$` becomes one storage pool; every hostvar matching `^libvirt_net_.*$` becomes one network. The variable name itself is arbitrary (only the prefix is matched) — use it to give each definition a distinct key.
@@ -106,6 +108,12 @@ The role creates each referenced volume (via `virt_volume`, idempotent — rerun
 #### Volume ownership
 
 A freshly created volume is owned `root:root 0600` by default, and libvirt's `dynamic_ownership` relabeling (which normally chowns a domain's disks to the configured qemu user/group right before it starts) does not reliably reach pool-backed `<disk type="volume">` sources the way it does plain `<disk type="file">` sources — the guest's own `disk_path` disk gets relabeled fine, but a first boot referencing a fresh `libvirt_volumes` entry can fail with qemu erroring `Could not open '...': Permission denied`. The role doesn't depend on libvirt to fix this: after creating each volume it resolves the real path with `virsh vol-path` and `chown`/`chmod`s it directly, every run (not just on creation), to `libvirt_volume_owner`/`libvirt_volume_group`/`libvirt_volume_mode` (default `libvirt-qemu`/`kvm`/`0660`, matching Debian's default `/etc/libvirt/qemu.conf`). Override those role variables if a hypervisor's `qemu.conf` sets a different `user`/`group`, or set `permissions.{owner,group,mode}` on an individual volume to override just that one.
+
+### AppArmor and custom pool paths
+
+On Debian, `libvirtd` itself runs under its own enforcing AppArmor profile (`/etc/apparmor.d/usr.sbin.libvirtd`), separate from the per-domain qemu profile `virt-aa-helper` generates when a guest starts. That daemon profile's default allowlist only covers well-known paths like `/var/lib/libvirt/images/**` — a `libvirt_pool_*` pool whose `target_path` lives somewhere else (e.g. a second disk mounted at `/var/lib/libvirt/pools/storage`) isn't on it, so starting a guest with a disk in that pool can fail with a bare `Could not open '...': Permission denied` even though the file's own ownership/mode is already correct (see [Volume ownership](#volume-ownership) above) — this is a separate failure mode from that one, at the daemon's confinement layer rather than plain file permissions.
+
+The role handles this itself: after building storage pools it writes an AppArmor local override (`/etc/apparmor.d/local/usr.sbin.libvirtd`, inside an ansible-managed block so any other manual additions to that file are left alone) granting `rwk` on every configured pool's `target_path`, and reloads the profile if it changed. This is skipped automatically on hosts without `/etc/apparmor.d/usr.sbin.libvirtd` (i.e. AppArmor isn't confining libvirtd at all); set `libvirt_manage_apparmor_pools: false` to opt out explicitly on a host where it's present but managed some other way.
 
 ### Static IPs for guests
 

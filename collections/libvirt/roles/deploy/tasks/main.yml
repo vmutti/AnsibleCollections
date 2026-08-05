@@ -1,6 +1,9 @@
 - name: Deploy libvirt storage pools
   include_tasks: pools.yml
 
+- name: Configure AppArmor access for libvirt storage pools
+  include_tasks: apparmor.yml
+
 - name: Deploy libvirt networks
   include_tasks: networks.yml
 
