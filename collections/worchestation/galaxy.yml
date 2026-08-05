@@ -41,6 +41,7 @@ dependencies:
   vmutti.kali: '>=1.0.0'
   vmutti.burp: '>=1.0.0'
   vmutti.wireguard: '>=1.0.0'
+  vmutti.jellyfin: '>=1.0.0'
   # vmutti.aws: '>=1.0.0'
   # vmutti.configs: '>=1.0.0'
   # vmutti.ethereum: '>=1.0.0'

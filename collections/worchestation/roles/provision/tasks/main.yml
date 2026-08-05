@@ -82,3 +82,6 @@
 
     - role: vmutti.kali.install
       tags: ['tools','security','kali']
+
+    - role: vmutti.jellyfin.install
+      tags: ['tools','media','jellyfin']
